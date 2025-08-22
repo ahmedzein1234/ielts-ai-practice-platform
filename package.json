@@ -1,0 +1,47 @@
+{
+  "name": "ielts-ai-platform",
+  "version": "1.0.0",
+  "description": "AI-powered IELTS preparation platform",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "test:integration": "turbo run test:integration",
+    "test:e2e": "turbo run test:e2e",
+    "lint": "turbo run lint",
+    "format": "turbo run format",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean",
+    "package": "turbo run package",
+    "mcp:validate": "node scripts/ci/mcp_validate.js",
+    "mcp:health": "node scripts/ci/mcp_health.js",
+    "security:audit": "npm audit --audit-level=moderate",
+    "security:headers": "node scripts/ci/check_headers.js",
+    "performance:lighthouse": "node scripts/ci/run_lighthouse.js",
+    "performance:axe": "node scripts/ci/run_axe.js",
+    "load:smoke": "k6 run scripts/ci/k6_smoke.js",
+    "docs:sync": "node scripts/ci/docs_guard.js",
+    "ai:review": "node scripts/ci/ai_review.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.1.0",
+    "turbo": "^1.11.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "packageManager": "npm@9.8.0"
+}

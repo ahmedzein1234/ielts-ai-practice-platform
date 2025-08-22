@@ -1,0 +1,108 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/"],
+      "env": {}
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "env:GITHUB_PERSONAL_ACCESS_TOKEN"
+      }
+    },
+    "openrouter": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-openrouter"],
+      "env": {
+        "OPENROUTER_API_KEY": "env:OPENROUTER_API_KEY"
+      }
+    },
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "env": {
+        "POSTGRES_CONNECTION_STRING": "env:DATABASE_URL"
+      }
+    },
+    "redis": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-redis"],
+      "env": {
+        "REDIS_URL": "env:REDIS_URL"
+      }
+    },
+    "s3": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-s3"],
+      "env": {
+        "AWS_ACCESS_KEY_ID": "env:AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY": "env:AWS_SECRET_ACCESS_KEY",
+        "AWS_REGION": "env:AWS_REGION",
+        "S3_BUCKET": "env:S3_BUCKET"
+      }
+    },
+    "browser": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-browser"],
+      "env": {}
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-playwright"],
+      "env": {}
+    },
+    "lighthouse": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-lighthouse"],
+      "env": {}
+    },
+    "axe": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-axe"],
+      "env": {}
+    },
+    "stripe": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-stripe"],
+      "env": {
+        "STRIPE_SECRET_KEY": "env:STRIPE_SECRET_KEY",
+        "STRIPE_WEBHOOK_SECRET": "env:STRIPE_WEBHOOK_SECRET"
+      }
+    },
+    "ffmpeg": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-ffmpeg"],
+      "env": {}
+    },
+    "stt": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-stt"],
+      "env": {
+        "DEEPGRAM_API_KEY": "env:DEEPGRAM_API_KEY"
+      }
+    },
+    "ocr": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-ocr"],
+      "env": {}
+    },
+    "scoring": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-scoring"],
+      "env": {
+        "OPENROUTER_API_KEY": "env:OPENROUTER_API_KEY"
+      }
+    },
+    "deploy": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-deploy"],
+      "env": {
+        "VERCEL_TOKEN": "env:VERCEL_TOKEN",
+        "AWS_ACCESS_KEY_ID": "env:AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY": "env:AWS_SECRET_ACCESS_KEY"
+      }
+    }
+  }
+}

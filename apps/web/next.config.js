@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    appDir: true,
-  },
   images: {
     domains: ['localhost', 'ielts-ai-platform.s3.amazonaws.com'],
     formats: ['image/webp', 'image/avif'],

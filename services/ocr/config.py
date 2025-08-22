@@ -63,9 +63,66 @@ class Settings(BaseSettings):
     enable_metrics: bool = Field(default=True, env="ENABLE_METRICS")
     enable_tracing: bool = Field(default=True, env="ENABLE_TRACING")
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
+    # Database (for compatibility with shared env)
+    database_url: Optional[str] = Field(default=None, env="DATABASE_URL")
+    
+    # JWT (for compatibility with shared env)
+    jwt_secret_key: Optional[str] = Field(default=None, env="JWT_SECRET_KEY")
+    jwt_algorithm: Optional[str] = Field(default=None, env="JWT_ALGORITHM")
+    access_token_expire_minutes: Optional[int] = Field(default=None, env="ACCESS_TOKEN_EXPIRE_MINUTES")
+    refresh_token_expire_days: Optional[int] = Field(default=None, env="REFRESH_TOKEN_EXPIRE_DAYS")
+    
+    # AI/LLM (for compatibility with shared env)
+    openai_api_key: Optional[str] = Field(default=None, env="OPENAI_API_KEY")
+    anthropic_api_key: Optional[str] = Field(default=None, env="ANTHROPIC_API_KEY")
+    openrouter_api_key: Optional[str] = Field(default=None, env="OPENROUTER_API_KEY")
+    
+    # AWS (for compatibility with shared env)
+    aws_access_key_id: Optional[str] = Field(default=None, env="AWS_ACCESS_KEY_ID")
+    aws_secret_access_key: Optional[str] = Field(default=None, env="AWS_SECRET_ACCESS_KEY")
+    aws_region: Optional[str] = Field(default=None, env="AWS_REGION")
+    s3_bucket: Optional[str] = Field(default=None, env="S3_BUCKET")
+    
+    # Stripe (for compatibility with shared env)
+    stripe_secret_key: Optional[str] = Field(default=None, env="STRIPE_SECRET_KEY")
+    stripe_webhook_secret: Optional[str] = Field(default=None, env="STRIPE_WEBHOOK_SECRET")
+    stripe_price_id: Optional[str] = Field(default=None, env="STRIPE_PRICE_ID")
+    
+    # Email (for compatibility with shared env)
+    sendgrid_api_key: Optional[str] = Field(default=None, env="SENDGRID_API_KEY")
+    smtp_host: Optional[str] = Field(default=None, env="SMTP_HOST")
+    smtp_port: Optional[int] = Field(default=None, env="SMTP_PORT")
+    smtp_user: Optional[str] = Field(default=None, env="SMTP_USER")
+    smtp_password: Optional[str] = Field(default=None, env="SMTP_PASSWORD")
+    
+    # GitHub (for compatibility with shared env)
+    github_personal_access_token: Optional[str] = Field(default=None, env="GITHUB_PERSONAL_ACCESS_TOKEN")
+    github_username: Optional[str] = Field(default=None, env="GITHUB_USERNAME")
+    github_repo_name: Optional[str] = Field(default=None, env="GITHUB_REPO_NAME")
+    
+    # Upstash Context7 (for compatibility with shared env)
+    upstash_context7_api_key: Optional[str] = Field(default=None, env="UPSTASH_CONTEXT7_API_KEY")
+    
+    # Deepgram (for compatibility with shared env)
+    deepgram_api_key: Optional[str] = Field(default=None, env="DEEPGRAM_API_KEY")
+    
+    # Vercel (for compatibility with shared env)
+    vercel_token: Optional[str] = Field(default=None, env="VERCEL_TOKEN")
+    
+    # Service ports (for compatibility with shared env)
+    api_port: Optional[int] = Field(default=None, env="API_PORT")
+    speech_port: Optional[int] = Field(default=None, env="SPEECH_PORT")
+    ocr_port: Optional[int] = Field(default=None, env="OCR_PORT")
+    scoring_port: Optional[int] = Field(default=None, env="SCORING_PORT")
+    
+    # Environment (for compatibility with shared env)
+    environment: Optional[str] = Field(default=None, env="ENVIRONMENT")
+    
+    model_config = {
+        "env_file": ".env",
+        "case_sensitive": False,
+        "extra": "ignore"  # Allow extra fields to be ignored
+    }
 
 
 # Global settings instance

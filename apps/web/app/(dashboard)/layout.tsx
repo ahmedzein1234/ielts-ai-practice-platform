@@ -53,8 +53,7 @@ const navigation = [
   { name: 'Reading', href: '/reading', icon: BookOpen },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Study Groups', href: '/groups', icon: Users },
-  { name: 'Target Score', href: '/target', icon: Target },
-  { name: 'Achievements', href: '/achievements', icon: Trophy },
+  { name: 'Goals & Achievements', href: '/goals', icon: Trophy },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 

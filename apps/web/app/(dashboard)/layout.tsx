@@ -40,6 +40,7 @@ import {
   Sun,
   Moon,
   Monitor,
+  Bot,
 } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
 import { useTheme } from 'next-themes';
@@ -47,6 +48,7 @@ import { cn } from '@/lib/utils';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
+  { name: 'AI Tutor', href: '/ai-tutor', icon: Bot },
   { name: 'Speaking', href: '/speaking', icon: Mic },
   { name: 'Writing', href: '/writing', icon: PenTool },
   { name: 'Listening', href: '/listening', icon: Headphones },

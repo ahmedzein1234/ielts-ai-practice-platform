@@ -6,13 +6,13 @@ from typing import Dict, List, Optional
 import structlog
 import redis.asyncio as redis
 
-from .config import settings
-from .models import (
+from config import settings
+from models import (
     ScoringRequest, ScoringResponse, CriterionScore, FeatureAnalysis,
     TaskType, CriterionType, BatchScoringRequest, BatchScoringResponse
 )
-from .llm_client import llm_manager
-from .feature_extractor import feature_extractor
+from llm_client import llm_manager
+from feature_extractor import feature_extractor
 
 logger = structlog.get_logger()
 

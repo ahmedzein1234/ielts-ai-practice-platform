@@ -12,7 +12,7 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
-from .models import FeatureAnalysis, TaskType
+from models import FeatureAnalysis, TaskType
 
 logger = structlog.get_logger()
 

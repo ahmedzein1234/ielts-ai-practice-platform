@@ -10,8 +10,8 @@ import structlog
 from openai import AsyncOpenAI
 from anthropic import AsyncAnthropic
 
-from .config import settings
-from .models import ScoringRequest, ScoringResponse, CriterionScore, CriterionType
+from config import settings
+from models import ScoringRequest, ScoringResponse, CriterionScore, CriterionType
 
 logger = structlog.get_logger()
 

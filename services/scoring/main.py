@@ -13,12 +13,12 @@ import structlog
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 
 from services.common.logging import setup_logging
-from .config import settings
-from .models import (
+from config import settings
+from models import (
     ScoringRequest, ScoringResponse, BatchScoringRequest, BatchScoringResponse,
     HealthStatus, ServiceInfo, ScoringStats
 )
-from .scoring_service import scoring_service
+from scoring_service import scoring_service
 
 
 @asynccontextmanager

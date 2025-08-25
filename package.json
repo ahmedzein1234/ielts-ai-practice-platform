@@ -62,12 +62,5 @@
     "supabase"
   ],
   "author": "IELTS AI Platform Team",
-  "license": "MIT",
-  "devDependencies": {
-    "@modelcontextprotocol/server-railway": "^0.1.0",
-    "@modelcontextprotocol/server-supabase": "^0.1.0",
-    "@modelcontextprotocol/server-vercel": "^0.1.0",
-    "@modelcontextprotocol/server-ui-components": "^0.1.0",
-    "@modelcontextprotocol/server-context-assistant": "^0.1.0"
-  }
+  "license": "MIT"
 }

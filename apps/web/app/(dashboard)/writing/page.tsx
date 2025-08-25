@@ -1,28 +1,26 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { useAuth } from '@/components/providers/auth-provider';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  PenTool,
-  Upload,
   Camera,
-  FileText,
   CheckCircle,
-  AlertCircle,
-  Loader2,
+  Clock,
   Download,
-  Eye,
+  FileText,
+  Loader2,
+  PenTool,
   RotateCcw,
   Settings,
   Target,
-  Clock,
+  Upload
 } from 'lucide-react';
-import { useAuth } from '@/components/providers/auth-provider';
+import { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 
 interface WritingPrompt {
@@ -92,7 +90,7 @@ export default function WritingPage() {
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLVideoElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -149,10 +147,10 @@ export default function WritingPage() {
       canvas.height = cameraRef.current.videoHeight;
       const ctx = canvas.getContext('2d');
       ctx?.drawImage(cameraRef.current, 0, 0);
-      
+
       const imageData = canvas.toDataURL('image/jpeg');
       setUploadedImage(imageData);
-      
+
       // Stop camera stream
       const stream = cameraRef.current.srcObject as MediaStream;
       stream?.getTracks().forEach(track => track.stop());
@@ -227,7 +225,7 @@ export default function WritingPage() {
           score: result.score,
           feedback: result.feedback,
           suggestions: result.suggestions,
-          imageUrl: uploadedImage,
+          imageUrl: uploadedImage || undefined,
         };
         setSubmission(newSubmission);
         setShowFeedback(true);
@@ -269,7 +267,7 @@ export default function WritingPage() {
     setIsTimerRunning(false);
     setUploadedImage(null);
     setIsProcessing(false);
-    
+
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
@@ -314,13 +312,13 @@ export default function WritingPage() {
                 </div>
                 <CardTitle className="text-lg">{prompt.title}</CardTitle>
                 <CardDescription className="text-sm">
-                  {prompt.prompt.length > 150 
-                    ? `${prompt.prompt.substring(0, 150)}...` 
+                  {prompt.prompt.length > 150
+                    ? `${prompt.prompt.substring(0, 150)}...`
                     : prompt.prompt}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button 
+                <Button
                   onClick={() => startWriting(prompt)}
                   className="w-full bg-purple-600 hover:bg-purple-700"
                 >
@@ -361,9 +359,9 @@ export default function WritingPage() {
                   <span>Target: {currentPrompt.wordCount} words</span>
                   <span>Current: {wordCount} words</span>
                 </div>
-                <Progress 
-                  value={(wordCount / currentPrompt.wordCount) * 100} 
-                  className="mt-2" 
+                <Progress
+                  value={(wordCount / currentPrompt.wordCount) * 100}
+                  className="mt-2"
                 />
               </CardContent>
             </Card>
@@ -485,7 +483,7 @@ export default function WritingPage() {
                   className="min-h-[400px] resize-none"
                   disabled={isProcessing}
                 />
-                
+
                 {isProcessing && (
                   <Alert className="mt-4">
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -563,20 +561,20 @@ export default function WritingPage() {
 
               {/* Actions */}
               <div className="flex items-center space-x-4">
-                <Button 
+                <Button
                   onClick={resetSession}
                   variant="outline"
                 >
                   <RotateCcw className="mr-2 h-4 w-4" />
                   Practice Again
                 </Button>
-                <Button 
+                <Button
                   onClick={() => setShowFeedback(false)}
                   variant="outline"
                 >
                   Try Different Prompt
                 </Button>
-                <Button 
+                <Button
                   variant="outline"
                 >
                   <Download className="mr-2 h-4 w-4" />

@@ -1,0 +1,19 @@
+{
+    "name": "ielts-frontend",
+    "version": 2,
+    "builds": [
+        {
+            "src": "package.json",
+            "use": "@vercel/next"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "/"
+        }
+    ],
+    "env": {
+        "NEXT_PUBLIC_API_URL": "https://ielts-api-gateway-production.up.railway.app"
+    }
+}

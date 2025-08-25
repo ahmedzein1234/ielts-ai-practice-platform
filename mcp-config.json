@@ -1,0 +1,60 @@
+{
+    "mcpServers": {
+        "railway": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-railway"
+            ],
+            "env": {
+                "RAILWAY_TOKEN": "${RAILWAY_TOKEN}"
+            }
+        },
+        "supabase": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-supabase"
+            ],
+            "env": {
+                "SUPABASE_URL": "${SUPABASE_URL}",
+                "SUPABASE_ANON_KEY": "${SUPABASE_ANON_KEY}",
+                "SUPABASE_SERVICE_ROLE_KEY": "${SUPABASE_SERVICE_ROLE_KEY}"
+            }
+        },
+        "vercel": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-vercel"
+            ],
+            "env": {
+                "VERCEL_TOKEN": "${VERCEL_TOKEN}",
+                "VERCEL_ORG_ID": "${VERCEL_ORG_ID}",
+                "VERCEL_PROJECT_ID": "${VERCEL_PROJECT_ID}"
+            }
+        },
+        "ui-components": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-ui-components"
+            ],
+            "env": {
+                "COMPONENT_LIBRARY": "shadcn-ui",
+                "FRAMEWORK": "nextjs"
+            }
+        },
+        "context-assistant": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-context-assistant"
+            ],
+            "env": {
+                "CONTEXT_SOURCE": "github",
+                "REPO_URL": "${GITHUB_REPO_URL}"
+            }
+        }
+    }
+}

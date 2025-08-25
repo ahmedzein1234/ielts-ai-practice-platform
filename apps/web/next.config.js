@@ -1,8 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Development debugging
+  reactStrictMode: true,
+  productionBrowserSourceMaps: true,
+
   images: {
     domains: ['localhost', 'ielts-ai-platform.s3.amazonaws.com'],
     formats: ['image/webp', 'image/avif'],
+  },
+
+  // Enhanced debugging in development
+  experimental: {
+    instrumentationHook: true,
+    serverComponentsExternalPackages: ['@prisma/client'],
   },
   async headers() {
     return [
@@ -66,7 +76,12 @@ const nextConfig = {
       },
     ];
   },
-  webpack: (config, { isServer }) => {
+  webpack: (config, { dev, isServer }) => {
+    // Enhanced source maps for debugging
+    if (dev) {
+      config.devtool = 'eval-source-map'
+    }
+
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -75,6 +90,17 @@ const nextConfig = {
         tls: false,
       };
     }
+
+    // Add debugging plugins
+    if (dev) {
+      config.plugins.push(
+        new (require('webpack')).DefinePlugin({
+          'process.env.NODE_ENV': JSON.stringify('development'),
+          'process.env.DEBUG': JSON.stringify('*'),
+        })
+      )
+    }
+
     return config;
   },
 };

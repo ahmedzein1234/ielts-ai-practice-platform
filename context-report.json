@@ -1,0 +1,151 @@
+{
+  "timestamp": "2025-08-25T17:01:00.387Z",
+  "project": {
+    "name": "IELTS AI Platform",
+    "type": "microservices",
+    "architecture": "FastAPI + Next.js + PostgreSQL + Redis",
+    "services": [
+      "api",
+      "scoring",
+      "speech",
+      "ocr",
+      "ai-tutor"
+    ],
+    "frontend": "Next.js with TypeScript and Tailwind CSS"
+  },
+  "structure": {
+    "services": [
+      "ai-tutor",
+      "api",
+      "common",
+      "ocr",
+      "scoring",
+      "speech"
+    ],
+    "frontend": "Next.js",
+    "config": [
+      "docker-compose.yml",
+      "package.json",
+      "requirements.txt"
+    ],
+    "scripts": [
+      "ci",
+      "context-assistant.js",
+      "mcp-deploy.js",
+      "ui-generator.js"
+    ]
+  },
+  "deploymentPlan": {
+    "phase1": {
+      "name": "Backend Setup",
+      "steps": [
+        "Create Railway account and project",
+        "Deploy API Gateway service",
+        "Deploy Scoring service",
+        "Deploy AI Tutor service",
+        "Configure environment variables"
+      ],
+      "estimatedTime": "30 minutes"
+    },
+    "phase2": {
+      "name": "Database Setup",
+      "steps": [
+        "Create Supabase project",
+        "Configure PostgreSQL database",
+        "Set up authentication",
+        "Create storage buckets",
+        "Configure real-time subscriptions"
+      ],
+      "estimatedTime": "20 minutes"
+    },
+    "phase3": {
+      "name": "Frontend Deployment",
+      "steps": [
+        "Connect GitHub repository to Vercel",
+        "Configure build settings",
+        "Set environment variables",
+        "Deploy frontend application",
+        "Test all features"
+      ],
+      "estimatedTime": "15 minutes"
+    },
+    "phase4": {
+      "name": "Integration & Testing",
+      "steps": [
+        "Test API endpoints",
+        "Verify database connections",
+        "Test real-time features",
+        "Configure custom domains",
+        "Set up monitoring"
+      ],
+      "estimatedTime": "25 minutes"
+    }
+  },
+  "recommendations": {
+    "performance": [
+      "Use Redis caching for frequently accessed data",
+      "Implement CDN for static assets",
+      "Optimize database queries with proper indexing",
+      "Use connection pooling for database connections"
+    ],
+    "security": [
+      "Enable HTTPS for all services",
+      "Implement rate limiting on API endpoints",
+      "Use environment variables for sensitive data",
+      "Set up proper CORS configuration",
+      "Implement input validation and sanitization"
+    ],
+    "monitoring": [
+      "Set up Railway monitoring for backend services",
+      "Configure Vercel analytics for frontend",
+      "Use Supabase dashboard for database monitoring",
+      "Implement error tracking with Sentry",
+      "Set up automated health checks"
+    ],
+    "scaling": [
+      "Railway auto-scales based on traffic",
+      "Vercel provides global CDN and edge functions",
+      "Supabase handles database scaling automatically",
+      "Consider implementing caching strategies",
+      "Monitor resource usage and optimize accordingly"
+    ]
+  },
+  "troubleshooting": {
+    "commonIssues": {
+      "Port conflicts": {
+        "description": "Services trying to use the same port",
+        "solution": "Use different ports or kill conflicting processes",
+        "command": "netstat -ano | findstr :8000"
+      },
+      "Environment variables": {
+        "description": "Missing or incorrect environment variables",
+        "solution": "Check Railway/Vercel dashboard and verify all variables are set",
+        "command": "railway variables"
+      },
+      "Database connection": {
+        "description": "Cannot connect to Supabase database",
+        "solution": "Verify DATABASE_URL and ensure SSL is enabled",
+        "command": "Check Supabase dashboard for connection string"
+      },
+      "CORS errors": {
+        "description": "Frontend cannot access backend APIs",
+        "solution": "Update CORS origins in FastAPI services",
+        "command": "Check ALLOWED_ORIGINS in service configs"
+      }
+    },
+    "debugCommands": {
+      "Check service status": "railway status",
+      "View logs": "railway logs",
+      "Redeploy service": "railway up",
+      "Check environment": "railway variables",
+      "Test API endpoint": "curl http://localhost:8000/health"
+    }
+  },
+  "nextSteps": [
+    "Run the MCP deployment script",
+    "Set up environment variables",
+    "Test all services locally",
+    "Deploy to production",
+    "Monitor and optimize"
+  ]
+}

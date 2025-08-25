@@ -1,27 +1,25 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { useAuth } from '@/components/providers/auth-provider';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import {
+  Loader2,
   Mic,
   MicOff,
-  Play,
   Pause,
+  Play,
   RotateCcw,
-  Volume2,
-  VolumeX,
   Settings,
-  Timer,
   Target,
-  CheckCircle,
-  AlertCircle,
-  Loader2,
+  Timer,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
-import { useAuth } from '@/components/providers/auth-provider';
+import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 
 interface SpeakingQuestion {
@@ -94,7 +92,7 @@ export default function SpeakingPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const socketRef = useRef<WebSocket | null>(null);
@@ -105,7 +103,7 @@ export default function SpeakingPage() {
     // Initialize WebSocket connection for real-time transcription
     const connectWebSocket = () => {
       const ws = new WebSocket('ws://localhost:8002/ws/speech');
-      
+
       ws.onopen = () => {
         console.log('WebSocket connected');
       };
@@ -145,7 +143,7 @@ export default function SpeakingPage() {
     setTranscript('');
     setSession(null);
     setShowFeedback(false);
-    
+
     if (question.preparationTime && question.preparationTime > 0) {
       setPreparationTime(question.preparationTime);
       preparationTimerRef.current = setInterval(() => {
@@ -208,7 +206,7 @@ export default function SpeakingPage() {
       setIsRecording(false);
       setIsPaused(false);
     }
-    
+
     if (speakingTimerRef.current) {
       clearInterval(speakingTimerRef.current);
     }
@@ -230,11 +228,12 @@ export default function SpeakingPage() {
 
   const processRecording = async (audioBlob: Blob) => {
     setIsProcessing(true);
-    
+
     try {
       // Convert audio to base64
       const arrayBuffer = await audioBlob.arrayBuffer();
-      const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      const uint8Array = new Uint8Array(arrayBuffer);
+      const base64Audio = btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
 
       // Send to scoring service
       const response = await fetch('/api/speaking/score', {
@@ -299,7 +298,7 @@ export default function SpeakingPage() {
     setIsRecording(false);
     setIsPaused(false);
     setIsProcessing(false);
-    
+
     if (preparationTimerRef.current) {
       clearInterval(preparationTimerRef.current);
     }
@@ -347,13 +346,13 @@ export default function SpeakingPage() {
                 </div>
                 <CardTitle className="text-lg">{question.title}</CardTitle>
                 <CardDescription className="text-sm">
-                  {question.prompt.length > 100 
-                    ? `${question.prompt.substring(0, 100)}...` 
+                  {question.prompt.length > 100
+                    ? `${question.prompt.substring(0, 100)}...`
                     : question.prompt}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button 
+                <Button
                   onClick={() => startPreparation(question)}
                   className="w-full bg-blue-600 hover:bg-blue-700"
                 >
@@ -422,7 +421,7 @@ export default function SpeakingPage() {
               {/* Controls */}
               <div className="flex items-center justify-center space-x-4">
                 {!isRecording && preparationTime === 0 && (
-                  <Button 
+                  <Button
                     onClick={startSpeaking}
                     size="lg"
                     className="bg-blue-600 hover:bg-blue-700"
@@ -431,9 +430,9 @@ export default function SpeakingPage() {
                     Start Recording
                   </Button>
                 )}
-                
+
                 {isRecording && !isPaused && (
-                  <Button 
+                  <Button
                     onClick={pauseRecording}
                     variant="outline"
                     size="lg"
@@ -442,9 +441,9 @@ export default function SpeakingPage() {
                     Pause
                   </Button>
                 )}
-                
+
                 {isRecording && isPaused && (
-                  <Button 
+                  <Button
                     onClick={resumeRecording}
                     variant="outline"
                     size="lg"
@@ -453,9 +452,9 @@ export default function SpeakingPage() {
                     Resume
                   </Button>
                 )}
-                
+
                 {isRecording && (
-                  <Button 
+                  <Button
                     onClick={stopRecording}
                     variant="destructive"
                     size="lg"
@@ -464,8 +463,8 @@ export default function SpeakingPage() {
                     Stop
                   </Button>
                 )}
-                
-                <Button 
+
+                <Button
                   onClick={resetSession}
                   variant="ghost"
                   size="lg"
@@ -560,14 +559,14 @@ export default function SpeakingPage() {
 
               {/* Actions */}
               <div className="flex items-center space-x-4">
-                <Button 
+                <Button
                   onClick={resetSession}
                   variant="outline"
                 >
                   <RotateCcw className="mr-2 h-4 w-4" />
                   Practice Again
                 </Button>
-                <Button 
+                <Button
                   onClick={() => setShowFeedback(false)}
                   variant="outline"
                 >

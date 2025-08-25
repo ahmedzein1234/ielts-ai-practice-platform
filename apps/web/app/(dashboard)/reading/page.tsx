@@ -1,20 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { 
-  Clock,
-  BookOpen,
-  CheckCircle,
-  XCircle,
+import {
   AlertCircle,
   ArrowLeft,
   ArrowRight,
-  Timer
+  BookOpen,
+  CheckCircle,
+  Timer,
+  XCircle
 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface Question {
   id: string;
@@ -199,16 +198,20 @@ export default function ReadingPage() {
     currentTest.questions.forEach(question => {
       const userAnswer = answers[question.id];
       const correctAnswer = question.correct_answer;
-      
+
       if (userAnswer) {
         if (Array.isArray(correctAnswer)) {
-          if (Array.isArray(userAnswer) && 
-              userAnswer.length === correctAnswer.length &&
-              userAnswer.every(ans => correctAnswer.includes(ans))) {
+          if (Array.isArray(userAnswer) &&
+            userAnswer.length === correctAnswer.length &&
+            userAnswer.every(ans => correctAnswer.includes(ans))) {
             correctAnswers++;
           }
         } else {
-          if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
+          if (Array.isArray(userAnswer)) {
+            if (userAnswer.length === 1 && userAnswer[0].toLowerCase() === correctAnswer.toLowerCase()) {
+              correctAnswers++;
+            }
+          } else if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
             correctAnswers++;
           }
         }
@@ -334,8 +337,8 @@ export default function ReadingPage() {
               <CardDescription>
                 Passage {currentPassage + 1} - Question {currentQuestion + 1} of {currentPassageQuestions.length}
               </CardDescription>
-              <Progress 
-                value={(currentQuestion + 1) / currentPassageQuestions.length * 100} 
+              <Progress
+                value={(currentQuestion + 1) / currentPassageQuestions.length * 100}
                 className="w-full"
               />
             </CardHeader>
@@ -343,9 +346,8 @@ export default function ReadingPage() {
               {currentPassageQuestions.map((question, index) => (
                 <div
                   key={question.id}
-                  className={`mb-8 p-4 rounded-lg border ${
-                    currentQuestion === index ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
-                  }`}
+                  className={`mb-8 p-4 rounded-lg border ${currentQuestion === index ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+                    }`}
                 >
                   <div className="flex items-start justify-between mb-4">
                     <h3 className="text-lg font-semibold">
@@ -363,11 +365,10 @@ export default function ReadingPage() {
                       {question.options.map((option, optionIndex) => (
                         <label
                           key={optionIndex}
-                          className={`flex items-center p-3 rounded-lg border cursor-pointer transition-colors ${
-                            answers[question.id] === option
+                          className={`flex items-center p-3 rounded-lg border cursor-pointer transition-colors ${answers[question.id] === option
                               ? 'border-blue-500 bg-blue-50'
                               : 'border-gray-200 hover:border-gray-300'
-                          }`}
+                            }`}
                         >
                           <input
                             type="radio"
@@ -409,11 +410,10 @@ export default function ReadingPage() {
                       {["true", "false"].map((option) => (
                         <label
                           key={option}
-                          className={`flex items-center p-3 rounded-lg border cursor-pointer transition-colors ${
-                            answers[question.id] === option
+                          className={`flex items-center p-3 rounded-lg border cursor-pointer transition-colors ${answers[question.id] === option
                               ? 'border-blue-500 bg-blue-50'
                               : 'border-gray-200 hover:border-gray-300'
-                          }`}
+                            }`}
                         >
                           <input
                             type="radio"
@@ -446,7 +446,7 @@ export default function ReadingPage() {
                         <span className="font-semibold">Correct Answer:</span>
                       </div>
                       <p className="text-gray-700">
-                        {Array.isArray(question.correct_answer) 
+                        {Array.isArray(question.correct_answer)
                           ? question.correct_answer.join(", ")
                           : question.correct_answer
                         }
@@ -466,11 +466,11 @@ export default function ReadingPage() {
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Previous
                 </Button>
-                
+
                 <span className="text-sm text-gray-500">
                   {currentQuestion + 1} of {currentPassageQuestions.length}
                 </span>
-                
+
                 <Button
                   variant="outline"
                   onClick={() => setCurrentQuestion(Math.min(currentPassageQuestions.length - 1, currentQuestion + 1))}
@@ -482,7 +482,7 @@ export default function ReadingPage() {
               </div>
 
               {!isSubmitted && (
-                <Button 
+                <Button
                   onClick={handleSubmit}
                   className="w-full mt-4"
                   disabled={Object.keys(answers).length < currentTest.questions.length}
@@ -515,11 +515,14 @@ export default function ReadingPage() {
                       const question = currentTest.questions.find(q => q.id === key);
                       const answer = answers[key];
                       const correct = question?.correct_answer;
-                      
+
                       if (Array.isArray(correct)) {
-                        return Array.isArray(answer) && 
-                               answer.length === correct.length &&
-                               answer.every(ans => correct.includes(ans));
+                        return Array.isArray(answer) &&
+                          answer.length === correct.length &&
+                          answer.every(ans => correct.includes(ans));
+                      }
+                      if (Array.isArray(answer) || Array.isArray(correct)) {
+                        return false;
                       }
                       return answer?.toLowerCase() === correct?.toLowerCase();
                     }).length} / {currentTest.questions.length}
@@ -533,8 +536,8 @@ export default function ReadingPage() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => window.location.reload()}
                   className="flex-1"
                 >

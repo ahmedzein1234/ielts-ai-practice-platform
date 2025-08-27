@@ -1,13 +1,13 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
+import { ErrorBoundary } from '@/components/error-boundary';
+import { AuthProvider } from '@/components/providers/auth-provider';
+import { QueryProvider } from '@/components/providers/query-provider';
+import { SupabaseProvider } from '@/components/providers/supabase-provider';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
-import { QueryProvider } from '@/components/providers/query-provider';
-import { AuthProvider } from '@/components/providers/auth-provider';
-import { SupabaseProvider } from '@/components/providers/supabase-provider';
-import { ErrorBoundary } from '@/components/error-boundary';
+import type { Metadata, Viewport } from 'next';
+import { Inter } from 'next/font/google';
 import Script from 'next/script';
+import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -64,13 +64,6 @@ export const metadata: Metadata = {
     google: 'your-google-verification-code',
   },
   manifest: '/manifest.json',
-  themeColor: '#3b82f6',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -84,6 +77,14 @@ export const metadata: Metadata = {
     'msapplication-TileColor': '#3b82f6',
     'msapplication-config': '/browserconfig.xml',
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: '#3b82f6',
 };
 
 export default function RootLayout({
@@ -103,13 +104,13 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="IELTS AI" />
         <meta name="msapplication-TileColor" content="#3b82f6" />
         <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
-        
+
         {/* Preconnect to external domains for performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://zzvskbvqtglzonftpikf.supabase.co" />
         <link rel="preconnect" href="https://ielts-api-gateway-production.up.railway.app" />
-        
+
         {/* DNS prefetch for better performance */}
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />
         <link rel="dns-prefetch" href="//zzvskbvqtglzonftpikf.supabase.co" />

@@ -1,11 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+import { useAuth } from '@/components/providers/auth-provider';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,41 +11,52 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Separator } from '@/components/ui/separator';
 import {
   Sheet,
   SheetContent,
   SheetHeader,
-  SheetTitle,
-  SheetTrigger,
+  SheetTitle
 } from '@/components/ui/sheet';
-import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 import {
-  Brain,
-  Mic,
-  PenTool,
-  Headphones,
-  BookOpen,
   BarChart3,
-  Settings,
+  Bell,
+  BookOpen,
+  Bot,
+  Brain,
+  ClipboardCheck,
+  FileText,
+  Headphones,
+  Home,
+  Lightbulb,
   LogOut,
   Menu,
-  Home,
-  Users,
-  Target,
-  Trophy,
-  Bell,
-  Sun,
-  Moon,
+  Mic,
   Monitor,
-  Bot,
+  Moon,
+  PenTool,
+  Route,
+  Settings,
+  Sun,
+  TrendingUp,
+  Trophy,
+  Users
 } from 'lucide-react';
-import { useAuth } from '@/components/providers/auth-provider';
 import { useTheme } from 'next-themes';
-import { cn } from '@/lib/utils';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'AI Tutor', href: '/ai-tutor', icon: Bot },
+  { name: 'Assessments', href: '/assessments', icon: ClipboardCheck },
+  { name: 'Content Management', href: '/content', icon: BookOpen },
+  { name: 'Learning Paths', href: '/learning-paths', icon: Route },
+  { name: 'AI Recommendations', href: '/recommendations', icon: Lightbulb },
+  { name: 'Analytics Dashboard', href: '/analytics-dashboard', icon: TrendingUp },
+  { name: 'Custom Reports', href: '/custom-reports', icon: FileText },
   { name: 'Speaking', href: '/speaking', icon: Mic },
   { name: 'Writing', href: '/writing', icon: PenTool },
   { name: 'Listening', href: '/listening', icon: Headphones },

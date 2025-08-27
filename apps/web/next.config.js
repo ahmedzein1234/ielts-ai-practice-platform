@@ -14,6 +14,9 @@ const nextConfig = {
     instrumentationHook: true,
     serverComponentsExternalPackages: ['@prisma/client'],
   },
+
+  // Docker support
+  output: 'standalone',
   async headers() {
     return [
       {

@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     version: str = "1.0.0"
     debug: bool = Field(default=False, env="DEBUG")
     host: str = Field(default="0.0.0.0", env="HOST")
-    port: int = Field(default=8004, env="PORT")
+    port: int = Field(default=8001, env="PORT")
     
     # CORS and Security
     cors_origins: List[str] = Field(

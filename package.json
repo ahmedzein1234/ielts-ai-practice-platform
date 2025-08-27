@@ -13,6 +13,8 @@
     "deploy:context": "node scripts/context-assistant.js",
     "deploy:all": "npm run deploy:context && npm run deploy:ui && npm run deploy:mcp",
     "dev": "docker-compose up",
+    "dev:enhanced": "powershell -ExecutionPolicy Bypass -File deploy-enhanced.ps1",
+    "dev:enhanced:bash": "./deploy-enhanced.sh",
     "dev:debug": "python debug_all_services.py",
     "build": "cd apps/web && npm run build",
     "test": "echo \"No tests specified\" && exit 0",

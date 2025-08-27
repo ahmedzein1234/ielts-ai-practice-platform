@@ -28,12 +28,26 @@ services:
       context: ./services/scoring
       dockerfile: Dockerfile
     ports:
-      - "8001:8001"
+      - "8005:8001"
     environment:
       - DATABASE_URL=postgresql://postgres:password@postgres:5432/ielts_db
       - REDIS_URL=redis://redis:6379/0
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - ielts-network
+
+  # Exam Generator Service
+  exam-generator:
+    build:
+      context: ./services/exam-generator
+      dockerfile: Dockerfile
+    ports:
+      - "8006:8006"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/ielts_db
+      - REDIS_URL=redis://redis:6379/0
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
     depends_on:
       - postgres
@@ -77,13 +91,13 @@ services:
     networks:
       - ielts-network
 
-  # AI Tutor Service
+  # AI Tutor Service (Enhanced)
   ai-tutor:
     build:
       context: ./services/ai-tutor
       dockerfile: Dockerfile
     ports:
-      - "8004:8004"
+      - "8001:8001"
     environment:
       - DATABASE_URL=postgresql://postgres:password@postgres:5432/ielts_db
       - REDIS_URL=redis://redis:6379/0
@@ -93,6 +107,8 @@ services:
       - API_SERVICE_URL=http://api:8000
       - SCORING_SERVICE_URL=http://scoring:8001
       - ANALYTICS_SERVICE_URL=http://api:8000
+      - HOST=0.0.0.0
+      - PORT=8001
     depends_on:
       - postgres
       - redis
@@ -110,7 +126,8 @@ services:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8000
-      - NEXT_PUBLIC_AI_TUTOR_URL=http://localhost:8004
+      - NEXT_PUBLIC_AI_TUTOR_URL=http://localhost:8001
+      - NEXT_PUBLIC_AI_TUTOR_WS_URL=ws://localhost:8001/ws
     depends_on:
       - api
       - ai-tutor
@@ -163,6 +180,7 @@ services:
 volumes:
   postgres_data:
   redis_data:
+
 
 networks:
   ielts-network:

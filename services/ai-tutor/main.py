@@ -7,13 +7,18 @@ from contextlib import asynccontextmanager
 import asyncio
 from typing import Dict, List
 import json
+import base64
 
 from config import settings
 from api.routes import router
-from api.websocket import WebSocketManager
+from api.websocket import EnhancedWebSocketManager
 from services.tutor_service import TutorService
 from services.recommendation_service import RecommendationService
 from services.learning_path_service import LearningPathService
+from services.advanced_tutor_service import AdvancedTutorService
+from services.enhanced_learning_path_service import EnhancedLearningPathService
+from services.speech_processor import SpeechProcessor
+from models.advanced_tutor import InteractionMode
 
 # Configure structured logging
 structlog.configure(
@@ -37,12 +42,15 @@ structlog.configure(
 logger = structlog.get_logger()
 
 # WebSocket connection manager
-websocket_manager = WebSocketManager()
+websocket_manager = EnhancedWebSocketManager()
 
 # Service instances
 tutor_service = TutorService()
 recommendation_service = RecommendationService()
 learning_path_service = LearningPathService()
+advanced_tutor_service = AdvancedTutorService()
+enhanced_learning_path_service = EnhancedLearningPathService()
+speech_processor = SpeechProcessor()
 
 # Inject service instances into API routes
 import api.routes
@@ -59,6 +67,8 @@ async def lifespan(app: FastAPI):
     await tutor_service.initialize()
     await recommendation_service.initialize()
     await learning_path_service.initialize()
+    await advanced_tutor_service.initialize()
+    await enhanced_learning_path_service.initialize()
     
     logger.info("AI Tutor Service started successfully")
     yield
@@ -102,18 +112,42 @@ async def websocket_tutor_endpoint(websocket: WebSocket, user_id: str):
             data = await websocket.receive_text()
             message = json.loads(data)
             
+            # Handle message using enhanced WebSocket manager
+            await websocket_manager.handle_message(user_id, message)
+            
             # Process message based on type
-            if message.get("type") == "chat":
-                response = await tutor_service.chat(
+            if message.get("type") == "user_message":
+                # Use advanced tutor service for enhanced responses
+                response = await advanced_tutor_service.advanced_chat(
                     user_id=user_id,
                     message=message.get("message", ""),
+                    interaction_mode=InteractionMode(message.get("interaction_mode", "text")),
                     context=message.get("context", {})
                 )
                 
-                await websocket.send_text(json.dumps({
-                    "type": "chat_response",
-                    "data": response
-                }))
+                await websocket_manager.send_multi_modal_response(user_id, response.dict())
+                
+            elif message.get("type") == "audio_message":
+                # Process audio message
+                audio_data = base64.b64decode(message.get("audio_data", ""))
+                speech_result = await speech_processor.process_audio(
+                    audio_data=audio_data,
+                    user_id=user_id,
+                    format_type=message.get("format", "wav")
+                )
+                
+                # Send speech analysis
+                await websocket_manager.send_speech_analysis(user_id, speech_result)
+                
+                # Generate tutor response based on speech analysis
+                if speech_result.get("analysis"):
+                    response = await advanced_tutor_service.advanced_chat(
+                        user_id=user_id,
+                        message="[Voice input processed]",
+                        interaction_mode=InteractionMode.VOICE,
+                        context={"speech_analysis": speech_result}
+                    )
+                    await websocket_manager.send_multi_modal_response(user_id, response.dict())
                 
             elif message.get("type") == "get_recommendations":
                 recommendations = await recommendation_service.get_recommendations(
@@ -122,22 +156,37 @@ async def websocket_tutor_endpoint(websocket: WebSocket, user_id: str):
                     limit=message.get("limit", 5)
                 )
                 
-                await websocket.send_text(json.dumps({
+                await websocket_manager.send_message(user_id, {
                     "type": "recommendations",
                     "data": recommendations
-                }))
+                })
                 
             elif message.get("type") == "get_learning_path":
-                learning_path = await learning_path_service.generate_path(
+                # Use enhanced learning path service
+                learning_path = await enhanced_learning_path_service.generate_enhanced_path(
                     user_id=user_id,
                     target_score=message.get("target_score"),
                     timeframe=message.get("timeframe", "30")
                 )
                 
-                await websocket.send_text(json.dumps({
+                await websocket_manager.send_message(user_id, {
                     "type": "learning_path",
                     "data": learning_path
-                }))
+                })
+                
+            elif message.get("type") == "voice_start":
+                # Handle voice recording start
+                await websocket_manager.send_message(user_id, {
+                    "type": "voice_started",
+                    "data": {"message": "Voice recording started"}
+                })
+                
+            elif message.get("type") == "voice_stop":
+                # Handle voice recording stop
+                await websocket_manager.send_message(user_id, {
+                    "type": "voice_processing",
+                    "data": {"message": "Processing voice input..."}
+                })
                 
     except WebSocketDisconnect:
         websocket_manager.disconnect(user_id)

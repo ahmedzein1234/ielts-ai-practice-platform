@@ -1,274 +1,305 @@
 'use client';
 
-import { useAuth } from '@/components/providers/auth-provider';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Loader2,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  Info,
   Mic,
   MicOff,
-  Pause,
-  Play,
   RotateCcw,
-  Settings,
   Target,
-  Timer,
-  Volume2,
-  VolumeX
+  TrendingUp,
+  Volume2
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import toast from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 
 interface SpeakingQuestion {
   id: string;
-  part: 1 | 2 | 3;
-  title: string;
-  prompt: string;
+  type: 'part1' | 'part2' | 'part3';
+  question: string;
+  followUp?: string[];
+  timeLimit: number;
   preparationTime?: number;
-  speakingTime?: number;
-  followUpQuestions?: string[];
+  bandTarget: number;
+}
+
+interface PronunciationScore {
+  overall: number;
+  individual_sounds: { [key: string]: number };
+  stress_patterns: number;
+  intonation: number;
+  word_linking: number;
+}
+
+interface FluencyMetrics {
+  speech_rate: number;
+  pause_frequency: number;
+  hesitation_ratio: number;
+  smoothness: number;
+}
+
+interface AccentAnalysis {
+  accent_type: string;
+  comprehensibility: number;
+  native_like_qualities: number;
+  regional_features: string[];
 }
 
 interface SpeakingSession {
   id: string;
-  question: SpeakingQuestion;
+  questionId: string;
+  audioUrl: string;
   transcript: string;
+  score: number;
+  feedback: string[];
+  pronunciation: PronunciationScore;
+  fluency: FluencyMetrics;
+  accent: AccentAnalysis;
+  overall_score: number;
+  band_level: string;
+  recommendations: string[];
+  practice_suggestions: string[];
+  timestamp: Date;
   duration: number;
-  score?: number;
-  feedback?: {
-    fluency: number;
-    pronunciation: number;
-    vocabulary: number;
-    grammar: number;
-    coherence: number;
-  };
-  recordingUrl?: string;
 }
 
 const mockQuestions: SpeakingQuestion[] = [
   {
     id: '1',
-    part: 1,
-    title: 'Personal Information',
-    prompt: 'Tell me about your hometown.',
-    preparationTime: 0,
-    speakingTime: 60,
+    type: 'part1',
+    question: 'Tell me about your hometown.',
+    followUp: ['What do you like most about it?', 'How has it changed over the years?'],
+    timeLimit: 120,
+    bandTarget: 7.0
   },
   {
     id: '2',
-    part: 2,
-    title: 'Describe a memorable journey',
-    prompt: 'Describe a journey you remember well. You should say:\n• Where you went\n• When you went there\n• Who you went with\n• And explain why you remember this journey well.',
+    type: 'part2',
+    question: 'Describe a place you would like to visit. You should say:\n- where this place is\n- how you know about this place\n- what you would do there\n- and explain why you would like to visit this place.',
+    timeLimit: 180,
     preparationTime: 60,
-    speakingTime: 120,
+    bandTarget: 7.0
   },
   {
     id: '3',
-    part: 3,
-    title: 'Travel and Tourism',
-    prompt: 'Let\'s talk about travel and tourism. What are the benefits of traveling to different countries?',
-    preparationTime: 0,
-    speakingTime: 90,
-    followUpQuestions: [
+    type: 'part3',
+    question: 'Let\'s talk about travel and tourism.',
+    followUp: [
+      'What are the benefits of travelling?',
       'How has tourism changed in recent years?',
-      'What impact does tourism have on local communities?',
-      'Do you think people should travel more or less?',
+      'What impact does tourism have on local communities?'
     ],
-  },
+    timeLimit: 240,
+    bandTarget: 7.0
+  }
 ];
 
 export default function SpeakingPage() {
-  const { user } = useAuth();
-  const [currentQuestion, setCurrentQuestion] = useState<SpeakingQuestion | null>(null);
   const [isRecording, setIsRecording] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const [session, setSession] = useState<SpeakingSession | null>(null);
-  const [preparationTime, setPreparationTime] = useState(0);
-  const [speakingTime, setSpeakingTime] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [currentQuestion, setCurrentQuestion] = useState<SpeakingQuestion | null>(null);
+  const [session, setSession] = useState<SpeakingSession | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [preparationTime, setPreparationTime] = useState(0);
+  const [isInPreparation, setIsInPreparation] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+  const [sessions, setSessions] = useState<SpeakingSession[]>([]);
+  const [selectedTab, setSelectedTab] = useState('practice');
+  const [error, setError] = useState<string | null>(null);
 
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
-  const socketRef = useRef<WebSocket | null>(null);
-  const preparationTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const speakingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const prepTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // Initialize WebSocket connection for real-time transcription
-    const connectWebSocket = () => {
-      const ws = new WebSocket('ws://localhost:8002/ws/speech');
-
-      ws.onopen = () => {
-        console.log('WebSocket connected');
-      };
-
-      ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === 'transcript') {
-          setTranscript(data.text);
-        } else if (data.type === 'final_transcript') {
-          setTranscript(data.text);
-        }
-      };
-
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        toast.error('Connection error. Please try again.');
-      };
-
-      ws.onclose = () => {
-        console.log('WebSocket disconnected');
-      };
-
-      socketRef.current = ws;
-    };
-
-    connectWebSocket();
-
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.close();
-      }
-    };
+    // Load previous sessions from localStorage
+    const savedSessions = localStorage.getItem('speaking_sessions');
+    if (savedSessions) {
+      setSessions(JSON.parse(savedSessions));
+    }
   }, []);
 
-  const startPreparation = (question: SpeakingQuestion) => {
-    setCurrentQuestion(question);
-    setTranscript('');
-    setSession(null);
-    setShowFeedback(false);
+  useEffect(() => {
+    if (isRecording) {
+      timerRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    }
 
-    if (question.preparationTime && question.preparationTime > 0) {
-      setPreparationTime(question.preparationTime);
-      preparationTimerRef.current = setInterval(() => {
-        setPreparationTime((prev) => {
-          if (prev <= 1) {
-            clearInterval(preparationTimerRef.current!);
-            startSpeaking();
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [isRecording]);
+
+  useEffect(() => {
+    if (isInPreparation) {
+      prepTimerRef.current = setInterval(() => {
+        setPreparationTime(prev => {
+          if (prev >= (currentQuestion?.preparationTime || 0)) {
+            setIsInPreparation(false);
+            startRecording();
             return 0;
           }
-          return prev - 1;
+          return prev + 1;
         });
       }, 1000);
     } else {
-      startSpeaking();
+      if (prepTimerRef.current) {
+        clearInterval(prepTimerRef.current);
+      }
+    }
+
+    return () => {
+      if (prepTimerRef.current) {
+        clearInterval(prepTimerRef.current);
+      }
+    };
+  }, [isInPreparation, currentQuestion]);
+
+  const startPreparation = async (question: SpeakingQuestion) => {
+    setCurrentQuestion(question);
+    setSession(null);
+    setShowFeedback(false);
+    setError(null);
+    setRecordingTime(0);
+    setPreparationTime(0);
+
+    if (question.preparationTime) {
+      setIsInPreparation(true);
+      toast.success(`Preparation time started. You have ${question.preparationTime} seconds.`);
+    } else {
+      startRecording();
     }
   };
 
-  const startSpeaking = async () => {
+  const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
+      const recorder = new MediaRecorder(stream);
+      const chunks: Blob[] = [];
 
-      mediaRecorder.ondataavailable = (event) => {
+      recorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
+          chunks.push(event.data);
         }
       };
 
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        await processRecording(audioBlob);
+      recorder.onstop = () => {
+        const audioBlob = new Blob(chunks, { type: 'audio/wav' });
+        processRecording(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
       };
 
-      mediaRecorder.start();
+      setMediaRecorder(recorder);
+      setAudioChunks(chunks);
+      recorder.start();
       setIsRecording(true);
-      setSpeakingTime(currentQuestion?.speakingTime || 120);
-
-      speakingTimerRef.current = setInterval(() => {
-        setSpeakingTime((prev) => {
-          if (prev <= 1) {
-            stopRecording();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
+      toast.success('Recording started!');
     } catch (error) {
       console.error('Error accessing microphone:', error);
-      toast.error('Unable to access microphone. Please check permissions.');
+      setError('Unable to access microphone. Please check permissions.');
+      toast.error('Microphone access denied');
     }
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.stop();
       setIsRecording(false);
-      setIsPaused(false);
-    }
-
-    if (speakingTimerRef.current) {
-      clearInterval(speakingTimerRef.current);
-    }
-  };
-
-  const pauseRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.pause();
-      setIsPaused(true);
-    }
-  };
-
-  const resumeRecording = () => {
-    if (mediaRecorderRef.current && isPaused) {
-      mediaRecorderRef.current.resume();
-      setIsPaused(false);
+      toast.success('Recording stopped. Processing...');
     }
   };
 
   const processRecording = async (audioBlob: Blob) => {
     setIsProcessing(true);
-
     try {
-      // Convert audio to base64
-      const arrayBuffer = await audioBlob.arrayBuffer();
-      const uint8Array = new Uint8Array(arrayBuffer);
-      const base64Audio = btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
-
-      // Send to scoring service
-      const response = await fetch('/api/speaking/score', {
+              const arrayBuffer = await audioBlob.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
+        const base64Audio = btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
+      
+      const response = await fetch('http://localhost:8003/analyze', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          question_id: currentQuestion?.id,
-          transcript: transcript,
           audio_data: base64Audio,
-          duration: currentQuestion?.speakingTime || 120,
+          sample_rate: 16000,
+          language: 'en',
+          include_pronunciation: true,
+          include_fluency: true,
+          include_accent: true,
+          target_band: currentQuestion?.bandTarget || 7.0
         }),
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        const newSession: SpeakingSession = {
-          id: result.session_id,
-          question: currentQuestion!,
-          transcript: transcript,
-          duration: currentQuestion?.speakingTime || 120,
-          score: result.score,
-          feedback: result.feedback,
-          recordingUrl: result.recording_url,
-        };
-        setSession(newSession);
-        setShowFeedback(true);
-        toast.success('Speaking session completed!');
-      } else {
-        throw new Error('Failed to process recording');
+      if (!response.ok) {
+        throw new Error(`Analysis failed: ${response.statusText}`);
       }
+
+      const analysisResult = await response.json();
+      
+      const newSession: SpeakingSession = {
+        id: `session_${Date.now()}`,
+        questionId: currentQuestion?.id || '',
+        audioUrl: URL.createObjectURL(audioBlob),
+        transcript: analysisResult.transcription?.text || 'No transcript available',
+        score: analysisResult.overall_score || 0,
+        feedback: analysisResult.recommendations || [],
+        pronunciation: analysisResult.pronunciation || {
+          overall: 0,
+          individual_sounds: {},
+          stress_patterns: 0,
+          intonation: 0,
+          word_linking: 0
+        },
+        fluency: analysisResult.fluency || {
+          speech_rate: 0,
+          pause_frequency: 0,
+          hesitation_ratio: 0,
+          smoothness: 0
+        },
+        accent: analysisResult.accent || {
+          accent_type: 'Unknown',
+          comprehensibility: 0,
+          native_like_qualities: 0,
+          regional_features: []
+        },
+        overall_score: analysisResult.overall_score || 0,
+        band_level: analysisResult.band_level || 'Unknown',
+        recommendations: analysisResult.recommendations || [],
+        practice_suggestions: analysisResult.practice_suggestions || [],
+        timestamp: new Date(),
+        duration: recordingTime
+      };
+
+      setSession(newSession);
+      setShowFeedback(true);
+      
+      // Save to sessions history
+      const updatedSessions = [newSession, ...sessions];
+      setSessions(updatedSessions);
+      localStorage.setItem('speaking_sessions', JSON.stringify(updatedSessions));
+      
+      toast.success('Analysis complete! Check your detailed feedback.');
     } catch (error) {
-      console.error('Error processing recording:', error);
+      console.error('Processing error:', error);
+      setError('Failed to process recording. Please try again.');
       toast.error('Failed to process recording. Please try again.');
     } finally {
       setIsProcessing(false);
@@ -281,302 +312,452 @@ export default function SpeakingPage() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const getBandScoreClass = (score: number) => {
-    if (score >= 7.5) return 'band-score-7-8';
-    if (score >= 6.5) return 'band-score-5-6';
-    if (score >= 5.5) return 'band-score-3-4';
-    return 'band-score-1-2';
+  const getBandColor = (band: string) => {
+    const bandNum = parseFloat(band);
+    if (bandNum >= 8.0) return 'bg-green-500';
+    if (bandNum >= 7.0) return 'bg-blue-500';
+    if (bandNum >= 6.0) return 'bg-yellow-500';
+    if (bandNum >= 5.0) return 'bg-orange-500';
+    return 'bg-red-500';
   };
 
-  const resetSession = () => {
-    setCurrentQuestion(null);
-    setTranscript('');
-    setSession(null);
-    setShowFeedback(false);
-    setPreparationTime(0);
-    setSpeakingTime(0);
-    setIsRecording(false);
-    setIsPaused(false);
-    setIsProcessing(false);
-
-    if (preparationTimerRef.current) {
-      clearInterval(preparationTimerRef.current);
-    }
-    if (speakingTimerRef.current) {
-      clearInterval(speakingTimerRef.current);
-    }
+  const getScoreColor = (score: number) => {
+    if (score >= 8.0) return 'text-green-600';
+    if (score >= 7.0) return 'text-blue-600';
+    if (score >= 6.0) return 'text-yellow-600';
+    if (score >= 5.0) return 'text-orange-600';
+    return 'text-red-600';
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Speaking Practice</h1>
+          <h1 className="text-3xl font-bold">Speaking Practice</h1>
           <p className="text-muted-foreground">
-            Practice your speaking skills with AI-powered feedback
+            Practice your IELTS speaking skills with AI-powered feedback
           </p>
         </div>
-        <Button variant="outline" size="sm">
-          <Settings className="mr-2 h-4 w-4" />
-          Settings
-        </Button>
+        <Badge variant="outline" className="text-sm">
+          <Target className="w-4 h-4 mr-1" />
+          Target: Band 7.0+
+        </Badge>
       </div>
 
-      {!currentQuestion && !showFeedback && (
-        /* Question Selection */
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {mockQuestions.map((question) => (
-            <Card key={question.id} className="hover:shadow-lg transition-all duration-200">
+      <Tabs value={selectedTab} onValueChange={setSelectedTab}>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="practice">Practice</TabsTrigger>
+          <TabsTrigger value="feedback">Feedback</TabsTrigger>
+          <TabsTrigger value="history">History</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="practice" className="space-y-6">
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {!currentQuestion && (
+            <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <Badge variant="secondary">Part {question.part}</Badge>
-                  <div className="flex items-center space-x-2">
-                    {question.preparationTime && question.preparationTime > 0 && (
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Timer className="mr-1 h-4 w-4" />
-                        {formatTime(question.preparationTime)}
-                      </div>
-                    )}
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Target className="mr-1 h-4 w-4" />
-                      {formatTime(question.speakingTime || 120)}
-                    </div>
-                  </div>
-                </div>
-                <CardTitle className="text-lg">{question.title}</CardTitle>
-                <CardDescription className="text-sm">
-                  {question.prompt.length > 100
-                    ? `${question.prompt.substring(0, 100)}...`
-                    : question.prompt}
-                </CardDescription>
+                <CardTitle>Choose a Question</CardTitle>
               </CardHeader>
-              <CardContent>
-                <Button
-                  onClick={() => startPreparation(question)}
-                  className="w-full bg-blue-600 hover:bg-blue-700"
-                >
-                  <Mic className="mr-2 h-4 w-4" />
-                  Start Practice
-                </Button>
+              <CardContent className="space-y-4">
+                {mockQuestions.map((question) => (
+                  <Card key={question.id} className="cursor-pointer hover:bg-muted/50 transition-colors">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant={question.type === 'part1' ? 'default' : question.type === 'part2' ? 'secondary' : 'outline'}>
+                              Part {question.type.slice(-1)}
+                            </Badge>
+                            <Badge variant="outline">
+                              <Clock className="w-3 h-3 mr-1" />
+                              {formatTime(question.timeLimit)}
+                            </Badge>
+                            {question.preparationTime && (
+                              <Badge variant="outline">
+                                <Info className="w-3 h-3 mr-1" />
+                                Prep: {formatTime(question.preparationTime)}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm whitespace-pre-line">{question.question}</p>
+                          {question.followUp && (
+                            <div className="mt-2">
+                              <p className="text-xs text-muted-foreground">Follow-up questions:</p>
+                              <ul className="text-xs text-muted-foreground list-disc list-inside">
+                                {question.followUp.map((q, idx) => (
+                                  <li key={idx}>{q}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                        <Button 
+                          onClick={() => startPreparation(question)}
+                          disabled={isRecording || isProcessing}
+                          size="sm"
+                        >
+                          Start
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </CardContent>
             </Card>
-          ))}
-        </div>
-      )}
+          )}
 
-      {currentQuestion && !showFeedback && (
-        /* Speaking Session */
-        <div className="space-y-6">
-          {/* Question Display */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Badge variant="secondary">Part {currentQuestion.part}</Badge>
-                  <CardTitle>{currentQuestion.title}</CardTitle>
+          {currentQuestion && !showFeedback && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  {isInPreparation ? (
+                    <>
+                      <Clock className="w-5 h-5" />
+                      Preparation Time
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="w-5 h-5" />
+                      Recording
+                    </>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>Question:</span>
+                    <Badge variant="outline">Part {currentQuestion.type.slice(-1)}</Badge>
+                  </div>
+                  <p className="text-sm bg-muted p-3 rounded-md whitespace-pre-line">
+                    {currentQuestion.question}
+                  </p>
                 </div>
-                <div className="flex items-center space-x-4">
-                  {preparationTime > 0 && (
-                    <div className="flex items-center space-x-2">
-                      <Timer className="h-4 w-4 text-orange-600" />
-                      <span className="text-sm font-medium">
-                        Preparation: {formatTime(preparationTime)}
+
+                {isInPreparation && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span>Preparation Time Remaining:</span>
+                      <span className="font-mono">
+                        {formatTime((currentQuestion.preparationTime || 0) - preparationTime)}
                       </span>
                     </div>
-                  )}
-                  {speakingTime > 0 && (
-                    <div className="flex items-center space-x-2">
-                      <Target className="h-4 w-4 text-blue-600" />
-                      <span className="text-sm font-medium">
-                        Speaking: {formatTime(speakingTime)}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="prose prose-sm max-w-none">
-                <p className="whitespace-pre-line">{currentQuestion.prompt}</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Recording Interface */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Mic className="h-5 w-5" />
-                <span>Recording</span>
-                {isRecording && (
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm text-muted-foreground">Live</span>
+                    <Progress 
+                      value={((currentQuestion.preparationTime || 0) - preparationTime) / (currentQuestion.preparationTime || 1) * 100} 
+                      className="h-2"
+                    />
                   </div>
                 )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Controls */}
-              <div className="flex items-center justify-center space-x-4">
-                {!isRecording && preparationTime === 0 && (
-                  <Button
-                    onClick={startSpeaking}
-                    size="lg"
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    <Mic className="mr-2 h-5 w-5" />
-                    Start Recording
-                  </Button>
-                )}
-
-                {isRecording && !isPaused && (
-                  <Button
-                    onClick={pauseRecording}
-                    variant="outline"
-                    size="lg"
-                  >
-                    <Pause className="mr-2 h-5 w-5" />
-                    Pause
-                  </Button>
-                )}
-
-                {isRecording && isPaused && (
-                  <Button
-                    onClick={resumeRecording}
-                    variant="outline"
-                    size="lg"
-                  >
-                    <Play className="mr-2 h-5 w-5" />
-                    Resume
-                  </Button>
-                )}
 
                 {isRecording && (
-                  <Button
-                    onClick={stopRecording}
-                    variant="destructive"
-                    size="lg"
-                  >
-                    <MicOff className="mr-2 h-5 w-5" />
-                    Stop
-                  </Button>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span>Recording Time:</span>
+                      <span className="font-mono">{formatTime(recordingTime)}</span>
+                    </div>
+                    <Progress 
+                      value={(recordingTime / currentQuestion.timeLimit) * 100} 
+                      className="h-2"
+                    />
+                  </div>
                 )}
 
-                <Button
-                  onClick={resetSession}
-                  variant="ghost"
-                  size="lg"
-                >
-                  <RotateCcw className="mr-2 h-5 w-5" />
-                  Reset
-                </Button>
-              </div>
-
-              {/* Transcript */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-medium">Live Transcript</h4>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsMuted(!isMuted)}
-                  >
-                    {isMuted ? (
-                      <VolumeX className="h-4 w-4" />
-                    ) : (
-                      <Volume2 className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-                <div className="min-h-[100px] p-4 border rounded-lg bg-muted/50">
-                  {transcript ? (
-                    <p className="text-sm leading-relaxed">{transcript}</p>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">
-                      {isRecording ? 'Listening...' : 'Start recording to see your transcript'}
-                    </p>
+                <div className="flex gap-2">
+                  {!isRecording && !isInPreparation && (
+                    <Button onClick={startRecording} disabled={isProcessing}>
+                      <Mic className="w-4 h-4 mr-2" />
+                      Start Recording
+                    </Button>
                   )}
+                  {isRecording && (
+                    <Button onClick={stopRecording} variant="destructive">
+                      <MicOff className="w-4 h-4 mr-2" />
+                      Stop Recording
+                    </Button>
+                  )}
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setCurrentQuestion(null);
+                      setSession(null);
+                      setShowFeedback(false);
+                      setError(null);
+                      setRecordingTime(0);
+                      setPreparationTime(0);
+                      setIsInPreparation(false);
+                    }}
+                  >
+                    <RotateCcw className="w-4 h-4 mr-2" />
+                    Reset
+                  </Button>
                 </div>
-              </div>
 
-              {/* Processing State */}
-              {isProcessing && (
-                <Alert>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <AlertDescription>
-                    Processing your recording and generating feedback...
-                  </AlertDescription>
-                </Alert>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {showFeedback && session && (
-        /* Feedback Display */
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Speaking Feedback</span>
-                {session.score && (
-                  <Badge className={getBandScoreClass(session.score)}>
-                    Band {session.score.toFixed(1)}
-                  </Badge>
+                {isProcessing && (
+                  <Alert>
+                    <Info className="h-4 w-4" />
+                    <AlertDescription>
+                      Processing your recording... This may take a few moments.
+                    </AlertDescription>
+                  </Alert>
                 )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Score Breakdown */}
-              {session.feedback && (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-                  {Object.entries(session.feedback).map(([criterion, score]) => (
-                    <div key={criterion} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium capitalize">
-                          {criterion}
-                        </span>
-                        <span className="text-sm text-muted-foreground">
-                          {score.toFixed(1)}
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="feedback" className="space-y-6">
+          {session && showFeedback ? (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5" />
+                    Analysis Results
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="text-center p-4 bg-muted rounded-lg">
+                      <div className="text-2xl font-bold mb-1">
+                        <span className={getScoreColor(session.overall_score)}>
+                          {session.overall_score.toFixed(1)}
                         </span>
                       </div>
-                      <Progress value={(score / 9) * 100} className="h-2" />
+                      <div className="text-sm text-muted-foreground">Overall Score</div>
                     </div>
-                  ))}
-                </div>
-              )}
+                    <div className="text-center p-4 bg-muted rounded-lg">
+                      <Badge className={`${getBandColor(session.band_level)} text-white`}>
+                        Band {session.band_level}
+                      </Badge>
+                      <div className="text-sm text-muted-foreground mt-1">Band Level</div>
+                    </div>
+                    <div className="text-center p-4 bg-muted rounded-lg">
+                      <div className="text-2xl font-bold mb-1">{formatTime(session.duration)}</div>
+                      <div className="text-sm text-muted-foreground">Duration</div>
+                    </div>
+                  </div>
 
-              {/* Transcript */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium">Your Response</h4>
-                <div className="p-4 border rounded-lg bg-muted/50">
-                  <p className="text-sm leading-relaxed">{session.transcript}</p>
-                </div>
+                  {session.audioUrl && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Your Recording:</label>
+                      <audio ref={audioRef} controls className="w-full">
+                        <source src={session.audioUrl} type="audio/wav" />
+                        Your browser does not support the audio element.
+                      </audio>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Transcript:</label>
+                    <div className="bg-muted p-3 rounded-md text-sm">
+                      {session.transcript || 'No transcript available'}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Volume2 className="w-5 h-5" />
+                      Pronunciation Analysis
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Overall Pronunciation</span>
+                        <span className={getScoreColor(session.pronunciation.overall)}>
+                          {session.pronunciation.overall.toFixed(1)}/10
+                        </span>
+                      </div>
+                      <Progress value={session.pronunciation.overall * 10} className="h-2" />
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Stress Patterns</span>
+                        <span>{session.pronunciation.stress_patterns.toFixed(1)}/10</span>
+                      </div>
+                      <Progress value={session.pronunciation.stress_patterns * 10} className="h-2" />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Intonation</span>
+                        <span>{session.pronunciation.intonation.toFixed(1)}/10</span>
+                      </div>
+                      <Progress value={session.pronunciation.intonation * 10} className="h-2" />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Word Linking</span>
+                        <span>{session.pronunciation.word_linking.toFixed(1)}/10</span>
+                      </div>
+                      <Progress value={session.pronunciation.word_linking * 10} className="h-2" />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5" />
+                      Fluency Analysis
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Speech Rate</span>
+                        <span>{session.fluency.speech_rate.toFixed(1)} words/min</span>
+                      </div>
+                      <Progress value={Math.min(session.fluency.speech_rate / 150 * 100, 100)} className="h-2" />
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Smoothness</span>
+                        <span>{session.fluency.smoothness.toFixed(1)}/10</span>
+                      </div>
+                      <Progress value={session.fluency.smoothness * 10} className="h-2" />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Pause Frequency</span>
+                        <span>{session.fluency.pause_frequency.toFixed(1)}/10</span>
+                      </div>
+                      <Progress value={session.fluency.pause_frequency * 10} className="h-2" />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Hesitation Ratio</span>
+                        <span>{session.fluency.hesitation_ratio.toFixed(1)}/10</span>
+                      </div>
+                      <Progress value={session.fluency.hesitation_ratio * 10} className="h-2" />
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
 
-              {/* Actions */}
-              <div className="flex items-center space-x-4">
-                <Button
-                  onClick={resetSession}
-                  variant="outline"
-                >
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Practice Again
-                </Button>
-                <Button
-                  onClick={() => setShowFeedback(false)}
-                  variant="outline"
-                >
-                  Try Different Question
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recommendations & Practice Suggestions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {session.recommendations.length > 0 && (
+                    <div>
+                      <h4 className="font-medium mb-2">Key Recommendations:</h4>
+                      <ul className="space-y-1">
+                        {session.recommendations.map((rec, idx) => (
+                          <li key={idx} className="text-sm flex items-start gap-2">
+                            <CheckCircle className="w-4 h-4 mt-0.5 text-green-600" />
+                            {rec}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {session.practice_suggestions.length > 0 && (
+                    <div>
+                      <h4 className="font-medium mb-2">Practice Suggestions:</h4>
+                      <ul className="space-y-1">
+                        {session.practice_suggestions.map((suggestion, idx) => (
+                          <li key={idx} className="text-sm flex items-start gap-2">
+                            <Target className="w-4 h-4 mt-0.5 text-blue-600" />
+                            {suggestion}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <Info className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-lg font-medium mb-2">No Feedback Available</h3>
+                <p className="text-muted-foreground">
+                  Complete a speaking practice session to see detailed feedback and analysis.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="history" className="space-y-6">
+          {sessions.length > 0 ? (
+            <div className="space-y-4">
+              {sessions.map((session) => (
+                <Card key={session.id} className="cursor-pointer hover:bg-muted/50 transition-colors">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className={`${getBandColor(session.band_level)} text-white`}>
+                            Band {session.band_level}
+                          </Badge>
+                          <Badge variant="outline">
+                            Score: {session.overall_score.toFixed(1)}
+                          </Badge>
+                          <Badge variant="outline">
+                            <Clock className="w-3 h-3 mr-1" />
+                            {formatTime(session.duration)}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {session.timestamp.toLocaleDateString()} at {session.timestamp.toLocaleTimeString()}
+                        </p>
+                        <p className="text-sm mt-1 line-clamp-2">
+                          {session.transcript}
+                        </p>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setSession(session);
+                          setShowFeedback(true);
+                          setSelectedTab('feedback');
+                        }}
+                      >
+                        View Details
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <Clock className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-lg font-medium mb-2">No Practice History</h3>
+                <p className="text-muted-foreground">
+                  Your speaking practice sessions will appear here.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

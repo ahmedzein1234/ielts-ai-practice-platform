@@ -1,0 +1,63 @@
+[build]
+command = "npm run build"
+publish = ".next"
+
+[build.environment]
+NODE_VERSION = "18"
+NPM_VERSION = "9"
+
+[env.production]
+NEXT_PUBLIC_API_URL = "https://your-railway-api.railway.app"
+NEXT_PUBLIC_AI_TUTOR_URL = "https://your-railway-ai-tutor.railway.app"
+NEXT_PUBLIC_AI_TUTOR_WS_URL = "wss://your-railway-ai-tutor.railway.app/ws"
+NEXT_PUBLIC_SCORING_URL = "https://your-railway-scoring.railway.app"
+NEXT_PUBLIC_SPEECH_URL = "https://your-railway-speech.railway.app"
+NEXT_PUBLIC_OCR_URL = "https://your-railway-ocr.railway.app"
+NEXT_PUBLIC_EXAM_GENERATOR_URL = "https://your-railway-exam-generator.railway.app"
+
+[env.preview]
+NEXT_PUBLIC_API_URL = "https://your-railway-api-staging.railway.app"
+NEXT_PUBLIC_AI_TUTOR_URL = "https://your-railway-ai-tutor-staging.railway.app"
+NEXT_PUBLIC_AI_TUTOR_WS_URL = "wss://your-railway-ai-tutor-staging.railway.app/ws"
+NEXT_PUBLIC_SCORING_URL = "https://your-railway-scoring-staging.railway.app"
+NEXT_PUBLIC_SPEECH_URL = "https://your-railway-speech-staging.railway.app"
+NEXT_PUBLIC_OCR_URL = "https://your-railway-ocr-staging.railway.app"
+NEXT_PUBLIC_EXAM_GENERATOR_URL = "https://your-railway-exam-generator-staging.railway.app"
+
+[[redirects]]
+from = "/api/*"
+to = "https://your-railway-api.railway.app/:splat"
+status = 200
+
+[[redirects]]
+from = "/speech/*"
+to = "https://your-railway-speech.railway.app/:splat"
+status = 200
+
+[[redirects]]
+from = "/ocr/*"
+to = "https://your-railway-ocr.railway.app/:splat"
+status = 200
+
+[[redirects]]
+from = "/scoring/*"
+to = "https://your-railway-scoring.railway.app/:splat"
+status = 200
+
+[[redirects]]
+from = "/exam-generator/*"
+to = "https://your-railway-exam-generator.railway.app/:splat"
+status = 200
+
+[functions]
+directory = "functions"
+
+[[headers]]
+for = "/*"
+[headers.values]
+X-Frame-Options = "DENY"
+X-Content-Type-Options = "nosniff"
+Referrer-Policy = "strict-origin-when-cross-origin"
+X-XSS-Protection = "1; mode=block"
+Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.vercel.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; media-src 'self' blob:; connect-src 'self' ws: wss: https://*.railway.app; frame-ancestors 'none'"

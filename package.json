@@ -1,68 +1,60 @@
 {
-  "name": "ielts-ai-platform",
+  "name": "ielts-ai-platform-mcp-deployment",
   "version": "1.0.0",
-  "description": "AI-powered IELTS preparation platform with microservices architecture",
-  "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "description": "IELTS AI Platform - MCP Integration Deployment Script",
+  "main": "mcp-deployment-integration.js",
+  "bin": {
+    "ielts-deploy": "./mcp-deployment-integration.js"
+  },
   "scripts": {
-    "deploy:mcp": "node scripts/mcp-deploy.js",
-    "deploy:ui": "node scripts/ui-generator.js",
-    "deploy:context": "node scripts/context-assistant.js",
-    "deploy:all": "npm run deploy:context && npm run deploy:ui && npm run deploy:mcp",
-    "dev": "docker-compose up",
-    "dev:enhanced": "powershell -ExecutionPolicy Bypass -File deploy-enhanced.ps1",
-    "dev:enhanced:bash": "./deploy-enhanced.sh",
-    "dev:debug": "python debug_all_services.py",
-    "build": "cd apps/web && npm run build",
-    "test": "echo \"No tests specified\" && exit 0",
-    "test:integration": "turbo run test:integration",
-    "test:e2e": "turbo run test:e2e",
-    "lint": "cd apps/web && npm run lint",
-    "format": "cd apps/web && npm run format",
-    "typecheck": "turbo run typecheck",
-    "clean": "turbo run clean",
-    "package": "turbo run package",
-    "mcp:validate": "node scripts/ci/mcp_validate.js",
-    "mcp:health": "node scripts/ci/mcp_health.js",
-    "security:audit": "npm audit --audit-level=moderate",
-    "security:headers": "node scripts/ci/check_headers.js",
-    "performance:lighthouse": "node scripts/ci/run_lighthouse.js",
-    "performance:axe": "node scripts/ci/run_axe.js",
-    "load:smoke": "k6 run scripts/ci/k6_smoke.js",
-    "docs:sync": "node scripts/ci/docs_guard.js",
-    "ai:review": "node scripts/ci/ai_review.js"
+    "deploy": "node mcp-deployment-integration.js",
+    "deploy:dry-run": "node mcp-deployment-integration.js --dry-run",
+    "deploy:backend": "node mcp-deployment-integration.js --skip-frontend --skip-supabase",
+    "deploy:frontend": "node mcp-deployment-integration.js --skip-backend --skip-supabase",
+    "setup": "npm install -g @railway/cli wrangler supabase",
+    "health-check": "node scripts/health-check.js",
+    "monitor": "node scripts/monitor.js",
+    "backup": "node scripts/backup.js",
+    "test": "node scripts/test-deployment.js"
+  },
+  "keywords": [
+    "ielts",
+    "ai",
+    "platform",
+    "deployment",
+    "mcp",
+    "cloudflare",
+    "railway",
+    "supabase",
+    "automation"
+  ],
+  "author": "IELTS AI Platform Team",
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "commander": "^11.1.0",
+    "chalk": "^5.3.0",
+    "ora": "^7.0.1",
+    "inquirer": "^9.2.12",
+    "dotenv": "^16.3.1",
+    "yaml": "^2.3.4",
+    "js-yaml": "^4.1.0"
   },
   "devDependencies": {
-    "@types/node": "^20.10.0",
-    "@typescript-eslint/eslint-plugin": "^6.13.0",
-    "@typescript-eslint/parser": "^6.13.0",
-    "eslint": "^8.54.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-prettier": "^5.0.0",
-    "prettier": "^3.1.0",
-    "turbo": "^1.11.0",
-    "typescript": "^5.3.0"
+    "jest": "^29.7.0",
+    "eslint": "^8.55.0",
+    "prettier": "^3.1.0"
   },
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
   },
-  "packageManager": "npm@9.8.0",
-  "keywords": [
-    "ielts",
-    "ai",
-    "education",
-    "microservices",
-    "fastapi",
-    "nextjs",
-    "typescript",
-    "railway",
-    "vercel",
-    "supabase"
-  ],
-  "author": "IELTS AI Platform Team",
-  "license": "MIT"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/ielts-ai-platform.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/ielts-ai-platform/issues"
+  },
+  "homepage": "https://github.com/your-org/ielts-ai-platform#readme"
 }

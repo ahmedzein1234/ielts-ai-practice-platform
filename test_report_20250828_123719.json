@@ -1,0 +1,385 @@
+{
+  "timestamp": "2025-08-28T12:37:19.157872",
+  "summary": {
+    "total_tests": 43,
+    "passed": 30,
+    "failed": 13,
+    "errors": 0
+  },
+  "results": [
+    {
+      "service": "api",
+      "endpoint": "/health",
+      "status": "PASS",
+      "response_time": 0.020205974578857422,
+      "error": null,
+      "details": {
+        "status": "healthy",
+        "service": "api-gateway"
+      }
+    },
+    {
+      "service": "ai_tutor",
+      "endpoint": "/health",
+      "status": "PASS",
+      "response_time": 0.006650686264038086,
+      "error": null,
+      "details": {
+        "status": "healthy",
+        "service": "ai-tutor",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "service": "exam_generator",
+      "endpoint": "/health",
+      "status": "PASS",
+      "response_time": 0.017149925231933594,
+      "error": null,
+      "details": {
+        "status": "healthy",
+        "service": "exam-generator"
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/health",
+      "status": "FAIL",
+      "response_time": 0.048262834548950195,
+      "error": "HTTP 404",
+      "details": null
+    },
+    {
+      "service": "scoring",
+      "endpoint": "/health",
+      "status": "PASS",
+      "response_time": 0.008801698684692383,
+      "error": null,
+      "details": {
+        "status": "healthy",
+        "service": "scoring",
+        "timestamp": "2025-08-28T08:37:18Z",
+        "uptime": 235.04421257972717
+      }
+    },
+    {
+      "service": "ocr",
+      "endpoint": "/health",
+      "status": "PASS",
+      "response_time": 0.009156227111816406,
+      "error": null,
+      "details": {
+        "status": "healthy",
+        "service": "ocr",
+        "timestamp": "2025-08-28T08:37:18Z",
+        "uptime": 748.1196494102478
+      }
+    },
+    {
+      "service": "speech",
+      "endpoint": "/health",
+      "status": "PASS",
+      "response_time": 0.009142875671386719,
+      "error": null,
+      "details": {
+        "status": "healthy",
+        "service": "speech",
+        "timestamp": "2025-08-28T08:37:18Z",
+        "uptime": 748.286693572998
+      }
+    },
+    {
+      "service": "worker",
+      "endpoint": "/health",
+      "status": "PASS",
+      "response_time": 0.027887582778930664,
+      "error": null,
+      "details": {
+        "status": "healthy",
+        "service": "worker",
+        "timestamp": "2025-08-28T08:37:18Z",
+        "uptime": 474.7677655220032
+      }
+    },
+    {
+      "service": "api",
+      "endpoint": "/users/",
+      "status": "PASS",
+      "response_time": 0.032990455627441406,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "api",
+      "endpoint": "/assessments/",
+      "status": "PASS",
+      "response_time": 0.005917549133300781,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "api",
+      "endpoint": "/content/",
+      "status": "PASS",
+      "response_time": 0.023260116577148438,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "api",
+      "endpoint": "/learning-paths/",
+      "status": "PASS",
+      "response_time": 0.005208015441894531,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "api",
+      "endpoint": "/analytics/",
+      "status": "PASS",
+      "response_time": 0.009200572967529297,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "api",
+      "endpoint": "/auth/login",
+      "status": "PASS",
+      "response_time": 0.0331273078918457,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "api",
+      "endpoint": "/auth/register",
+      "status": "FAIL",
+      "response_time": 0.014585494995117188,
+      "error": "HTTP 422",
+      "details": null
+    },
+    {
+      "service": "exam_generator",
+      "endpoint": "/templates",
+      "status": "FAIL",
+      "response_time": 0.008968353271484375,
+      "error": "HTTP 404",
+      "details": null
+    },
+    {
+      "service": "exam_generator",
+      "endpoint": "/generate",
+      "status": "FAIL",
+      "response_time": 0.0036995410919189453,
+      "error": "HTTP 404",
+      "details": null
+    },
+    {
+      "service": "exam_generator",
+      "endpoint": "/submit",
+      "status": "FAIL",
+      "response_time": 0.03139638900756836,
+      "error": "HTTP 404",
+      "details": null
+    },
+    {
+      "service": "exam_generator",
+      "endpoint": "/results",
+      "status": "FAIL",
+      "response_time": 0.008336305618286133,
+      "error": "HTTP 404",
+      "details": null
+    },
+    {
+      "service": "ai_tutor",
+      "endpoint": "/chat",
+      "status": "FAIL",
+      "response_time": 0.009006500244140625,
+      "error": "HTTP 404",
+      "details": null
+    },
+    {
+      "service": "ai_tutor",
+      "endpoint": "/speech-analysis",
+      "status": "FAIL",
+      "response_time": 0.009937524795532227,
+      "error": "HTTP 404",
+      "details": null
+    },
+    {
+      "service": "ai_tutor",
+      "endpoint": "/personality",
+      "status": "FAIL",
+      "response_time": 0.0035398006439208984,
+      "error": "HTTP 404",
+      "details": null
+    },
+    {
+      "service": "ai_tutor",
+      "endpoint": "/learning-path",
+      "status": "FAIL",
+      "response_time": 0.0302884578704834,
+      "error": "HTTP 404",
+      "details": null
+    },
+    {
+      "service": "web",
+      "endpoint": "/",
+      "status": "PASS",
+      "response_time": 0.010985612869262695,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "web",
+      "endpoint": "/dashboard",
+      "status": "PASS",
+      "response_time": 0.01633000373840332,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "web",
+      "endpoint": "/ai-tutor",
+      "status": "PASS",
+      "response_time": 0.00963139533996582,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "web",
+      "endpoint": "/assessments",
+      "status": "PASS",
+      "response_time": 0.009644746780395508,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "web",
+      "endpoint": "/content",
+      "status": "PASS",
+      "response_time": 0.01728653907775879,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "web",
+      "endpoint": "/learning-paths",
+      "status": "PASS",
+      "response_time": 0.011995553970336914,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "web",
+      "endpoint": "/recommendations",
+      "status": "PASS",
+      "response_time": 0.030530929565429688,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "web",
+      "endpoint": "/analytics-dashboard",
+      "status": "PASS",
+      "response_time": 0.031449079513549805,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "web",
+      "endpoint": "/custom-reports",
+      "status": "PASS",
+      "response_time": 0.013387441635131836,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "web",
+      "endpoint": "/speaking",
+      "status": "PASS",
+      "response_time": 0.011789083480834961,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "web",
+      "endpoint": "/writing",
+      "status": "PASS",
+      "response_time": 0.022093534469604492,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "web",
+      "endpoint": "/listening",
+      "status": "PASS",
+      "response_time": 0.012884140014648438,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "web",
+      "endpoint": "/reading",
+      "status": "PASS",
+      "response_time": 0.007275581359863281,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "web",
+      "endpoint": "/analytics",
+      "status": "PASS",
+      "response_time": 0.02787327766418457,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "web",
+      "endpoint": "/groups",
+      "status": "PASS",
+      "response_time": 0.02797698974609375,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "web",
+      "endpoint": "/goals",
+      "status": "PASS",
+      "response_time": 0.00883936882019043,
+      "error": null,
+      "details": null
+    },
+    {
+      "service": "web",
+      "endpoint": "/settings",
+      "status": "FAIL",
+      "response_time": 0.020427942276000977,
+      "error": "HTTP 404",
+      "details": null
+    },
+    {
+      "service": "web",
+      "endpoint": "/exam-creator",
+      "status": "FAIL",
+      "response_time": 0.02233719825744629,
+      "error": "HTTP 404",
+      "details": null
+    },
+    {
+      "service": "web",
+      "endpoint": "/exam-simulator",
+      "status": "FAIL",
+      "response_time": 0.03428149223327637,
+      "error": "HTTP 404",
+      "details": null
+    },
+    {
+      "service": "web",
+      "endpoint": "/ai-tutor/enhanced",
+      "status": "PASS",
+      "response_time": 0.018233299255371094,
+      "error": null,
+      "details": null
+    }
+  ]
+}

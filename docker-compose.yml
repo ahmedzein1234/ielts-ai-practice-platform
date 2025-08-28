@@ -32,6 +32,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:password@postgres:5432/ielts_db
       - REDIS_URL=redis://redis:6379/0
+      - PORT=8001
     depends_on:
       - postgres
       - redis
@@ -163,6 +164,8 @@ services:
     build:
       context: ./workers
       dockerfile: Dockerfile
+    ports:
+      - "8004:8004"
     environment:
       - DATABASE_URL=postgresql://postgres:password@postgres:5432/ielts_db
       - REDIS_URL=redis://redis:6379/0

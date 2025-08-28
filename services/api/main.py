@@ -9,6 +9,9 @@ from fastapi.responses import JSONResponse
 from opentelemetry import trace
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
+# Import route modules
+from routes import assessment, content, learning, analytics, auth, users
+
 # Setup basic logging
 structlog.configure(
     processors=[
@@ -52,6 +55,14 @@ app.add_middleware(
     TrustedHostMiddleware,
     allowed_hosts=["*"],  # Configure this properly in production
 )
+
+# Include route modules
+app.include_router(assessment.router, prefix="/assessments", tags=["assessments"])
+app.include_router(content.router, prefix="/content", tags=["content"])
+app.include_router(learning.router, prefix="/learning-paths", tags=["learning"])
+app.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
+app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(users.router, prefix="/users", tags=["users"])
 
 # Health check endpoint
 @app.get("/health")

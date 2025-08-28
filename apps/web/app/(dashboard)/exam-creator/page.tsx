@@ -359,7 +359,7 @@ export default function ExamCreatorPage() {
                             <CardHeader>
                                 <CardTitle className="flex items-center justify-between">
                                     <span>Generated Exam: {generatedExam.exam.title}</span>
-                                    <Badge variant="success">{generatedExam.exam_id}</Badge>
+                                    <Badge variant="default">{generatedExam.exam_id}</Badge>
                                 </CardTitle>
                                 <CardDescription>
                                     {generatedExam.exam.description}
@@ -418,7 +418,7 @@ export default function ExamCreatorPage() {
                                     <div>
                                         <h3 className="text-lg font-semibold mb-3">Exam Types</h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {examTemplate.exam_types.map((type: string) => (
+                                            {examTemplate.exam_type ? [examTemplate.exam_type] : ['general', 'academic'].map((type: string) => (
                                                 <Card key={type} className="p-4">
                                                     <h4 className="font-semibold capitalize">{type} IELTS</h4>
                                                     <p className="text-sm text-muted-foreground">
@@ -435,7 +435,7 @@ export default function ExamCreatorPage() {
                                     <div>
                                         <h3 className="text-lg font-semibold mb-3">Difficulty Levels</h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                            {examTemplate.difficulty_levels.map((level: string) => (
+                                            {examTemplate.difficulty_level ? [examTemplate.difficulty_level] : ['beginner', 'intermediate', 'advanced', 'expert'].map((level: string) => (
                                                 <Card key={level} className="p-4">
                                                     <h4 className="font-semibold capitalize">{level}</h4>
                                                     <p className="text-sm text-muted-foreground">

@@ -1,0 +1,413 @@
+{
+  "timestamp": "2025-08-28T10:12:38.372059",
+  "summary": {
+    "total_tests": 42,
+    "passed": 31,
+    "failed": 7,
+    "errors": 4
+  },
+  "results": [
+    {
+      "service": "api",
+      "endpoint": "/health",
+      "status": "PASS",
+      "response_time": 0.04668998718261719,
+      "error": null,
+      "details": {
+        "status": "healthy",
+        "service": "api-gateway"
+      }
+    },
+    {
+      "service": "ai_tutor",
+      "endpoint": "/health",
+      "status": "PASS",
+      "response_time": 0.010639667510986328,
+      "error": null,
+      "details": {
+        "status": "healthy",
+        "service": "ai-tutor",
+        "version": "1.0.0"
+      }
+    },
+    {
+      "service": "exam_generator",
+      "endpoint": "/health",
+      "status": "PASS",
+      "response_time": 0.010656118392944336,
+      "error": null,
+      "details": {
+        "status": "healthy",
+        "service": "exam-generator"
+      }
+    },
+    {
+      "service": "scoring",
+      "endpoint": "/health",
+      "status": "ERROR",
+      "response_time": 4.072104454040527,
+      "error": "HTTPConnectionPool(host='localhost', port=8005): Max retries exceeded with url: /health (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000020A3A055BA0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))",
+      "details": null
+    },
+    {
+      "service": "ocr",
+      "endpoint": "/health",
+      "status": "ERROR",
+      "response_time": 4.091639041900635,
+      "error": "HTTPConnectionPool(host='localhost', port=8002): Max retries exceeded with url: /health (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000020A3A056060>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))",
+      "details": null
+    },
+    {
+      "service": "speech",
+      "endpoint": "/health",
+      "status": "ERROR",
+      "response_time": 4.109046220779419,
+      "error": "HTTPConnectionPool(host='localhost', port=8003): Max retries exceeded with url: /health (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000020A3A0531D0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))",
+      "details": null
+    },
+    {
+      "service": "worker",
+      "endpoint": "/health",
+      "status": "ERROR",
+      "response_time": 4.087368011474609,
+      "error": "HTTPConnectionPool(host='localhost', port=8004): Max retries exceeded with url: /health (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000020A3A027570>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))",
+      "details": null
+    },
+    {
+      "service": "api",
+      "endpoint": "/users",
+      "status": "FAIL",
+      "response_time": 0.006476879119873047,
+      "error": "HTTP 404",
+      "details": null
+    },
+    {
+      "service": "api",
+      "endpoint": "/assessments",
+      "status": "FAIL",
+      "response_time": 0.006173133850097656,
+      "error": "HTTP 404",
+      "details": null
+    },
+    {
+      "service": "api",
+      "endpoint": "/content",
+      "status": "FAIL",
+      "response_time": 0.005407094955444336,
+      "error": "HTTP 404",
+      "details": null
+    },
+    {
+      "service": "api",
+      "endpoint": "/learning-paths",
+      "status": "FAIL",
+      "response_time": 0.006745100021362305,
+      "error": "HTTP 404",
+      "details": null
+    },
+    {
+      "service": "api",
+      "endpoint": "/analytics",
+      "status": "FAIL",
+      "response_time": 0.009062528610229492,
+      "error": "HTTP 404",
+      "details": null
+    },
+    {
+      "service": "api",
+      "endpoint": "/auth/login",
+      "status": "FAIL",
+      "response_time": 0.00785970687866211,
+      "error": "HTTP 404",
+      "details": null
+    },
+    {
+      "service": "api",
+      "endpoint": "/auth/register",
+      "status": "FAIL",
+      "response_time": 0.02429986000061035,
+      "error": "HTTP 404",
+      "details": null
+    },
+    {
+      "service": "exam_generator",
+      "endpoint": "/templates",
+      "status": "PASS",
+      "response_time": 0.02813410758972168,
+      "error": null,
+      "details": {
+        "status_code": 404
+      }
+    },
+    {
+      "service": "exam_generator",
+      "endpoint": "/generate",
+      "status": "PASS",
+      "response_time": 0.007164716720581055,
+      "error": null,
+      "details": {
+        "status_code": 404
+      }
+    },
+    {
+      "service": "exam_generator",
+      "endpoint": "/submit",
+      "status": "PASS",
+      "response_time": 0.023382902145385742,
+      "error": null,
+      "details": {
+        "status_code": 404
+      }
+    },
+    {
+      "service": "exam_generator",
+      "endpoint": "/results",
+      "status": "PASS",
+      "response_time": 0.006255149841308594,
+      "error": null,
+      "details": {
+        "status_code": 404
+      }
+    },
+    {
+      "service": "ai_tutor",
+      "endpoint": "/chat",
+      "status": "PASS",
+      "response_time": 0.023207902908325195,
+      "error": null,
+      "details": {
+        "status_code": 404
+      }
+    },
+    {
+      "service": "ai_tutor",
+      "endpoint": "/speech-analysis",
+      "status": "PASS",
+      "response_time": 0.008090972900390625,
+      "error": null,
+      "details": {
+        "status_code": 404
+      }
+    },
+    {
+      "service": "ai_tutor",
+      "endpoint": "/personality",
+      "status": "PASS",
+      "response_time": 0.00814962387084961,
+      "error": null,
+      "details": {
+        "status_code": 404
+      }
+    },
+    {
+      "service": "ai_tutor",
+      "endpoint": "/learning-path",
+      "status": "PASS",
+      "response_time": 0.006727933883666992,
+      "error": null,
+      "details": {
+        "status_code": 404
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/",
+      "status": "PASS",
+      "response_time": 0.020513057708740234,
+      "error": null,
+      "details": {
+        "status_code": 200
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/dashboard",
+      "status": "PASS",
+      "response_time": 0.012985706329345703,
+      "error": null,
+      "details": {
+        "status_code": 200
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/ai-tutor",
+      "status": "PASS",
+      "response_time": 0.012441158294677734,
+      "error": null,
+      "details": {
+        "status_code": 200
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/assessments",
+      "status": "PASS",
+      "response_time": 0.010339736938476562,
+      "error": null,
+      "details": {
+        "status_code": 200
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/content",
+      "status": "PASS",
+      "response_time": 0.011043548583984375,
+      "error": null,
+      "details": {
+        "status_code": 200
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/learning-paths",
+      "status": "PASS",
+      "response_time": 0.009912252426147461,
+      "error": null,
+      "details": {
+        "status_code": 200
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/recommendations",
+      "status": "PASS",
+      "response_time": 0.012356758117675781,
+      "error": null,
+      "details": {
+        "status_code": 200
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/analytics-dashboard",
+      "status": "PASS",
+      "response_time": 0.012535572052001953,
+      "error": null,
+      "details": {
+        "status_code": 200
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/custom-reports",
+      "status": "PASS",
+      "response_time": 0.012546777725219727,
+      "error": null,
+      "details": {
+        "status_code": 200
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/speaking",
+      "status": "PASS",
+      "response_time": 0.009946346282958984,
+      "error": null,
+      "details": {
+        "status_code": 200
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/writing",
+      "status": "PASS",
+      "response_time": 0.009456396102905273,
+      "error": null,
+      "details": {
+        "status_code": 200
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/listening",
+      "status": "PASS",
+      "response_time": 0.028677701950073242,
+      "error": null,
+      "details": {
+        "status_code": 200
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/reading",
+      "status": "PASS",
+      "response_time": 0.015862464904785156,
+      "error": null,
+      "details": {
+        "status_code": 200
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/analytics",
+      "status": "PASS",
+      "response_time": 0.012572526931762695,
+      "error": null,
+      "details": {
+        "status_code": 200
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/groups",
+      "status": "PASS",
+      "response_time": 0.03687286376953125,
+      "error": null,
+      "details": {
+        "status_code": 200
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/goals",
+      "status": "PASS",
+      "response_time": 0.0057752132415771484,
+      "error": null,
+      "details": {
+        "status_code": 200
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/settings",
+      "status": "PASS",
+      "response_time": 0.03351235389709473,
+      "error": null,
+      "details": {
+        "status_code": 404
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/exam-creator",
+      "status": "PASS",
+      "response_time": 0.03275322914123535,
+      "error": null,
+      "details": {
+        "status_code": 404
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/exam-simulator",
+      "status": "PASS",
+      "response_time": 0.031846046447753906,
+      "error": null,
+      "details": {
+        "status_code": 404
+      }
+    },
+    {
+      "service": "web",
+      "endpoint": "/ai-tutor/enhanced",
+      "status": "PASS",
+      "response_time": 0.04456686973571777,
+      "error": null,
+      "details": {
+        "status_code": 200
+      }
+    }
+  ]
+}

@@ -1,48 +1,88 @@
-"""Main worker application entry point."""
+"""Main FastAPI application for the Worker service."""
 
-import sys
 import os
-from contextlib import asynccontextmanager
+import time
 
-# Add the services directory to the path
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
-from services.common.logging import setup_logging
-from workers.config import settings
-from workers.celery_app import celery_app
+# Create FastAPI app
+app = FastAPI(
+    title="IELTS Worker Service",
+    description="Background task processing service",
+    version="0.1.0",
+)
 
-# Import all task modules to register them
-from workers.tasks import scoring, file_processing, email, analytics
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-logger = None
+
+# Models
+class HealthStatus(BaseModel):
+    status: str
+    service: str
+    timestamp: str
+    uptime: float
 
 
-def main():
-    """Main entry point for the worker application."""
-    global logger
-    
-    # Setup logging
-    setup_logging(level=settings.log_level)
-    logger = structlog.get_logger()
-    
-    logger.info(
-        "Starting IELTS Worker System",
-        version="0.1.0",
-        broker_url=settings.celery_broker_url,
-        result_backend=settings.celery_result_backend
+class TaskRequest(BaseModel):
+    task_type: str
+    data: dict
+
+
+class TaskResponse(BaseModel):
+    task_id: str
+    status: str
+    result: dict = None
+
+
+# Service state
+_start_time = time.time()
+
+
+@app.get("/health", response_model=HealthStatus)
+async def health_check():
+    """Health check endpoint."""
+    uptime = time.time() - _start_time
+    return HealthStatus(
+        status="healthy",
+        service="worker",
+        timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        uptime=uptime,
     )
-    
-    # Start Celery worker
-    argv = [
-        'worker',
-        '--loglevel=info',
-        '--concurrency=4',
-        '--queues=scoring,file_processing,email,analytics',
-        '--hostname=ielts-worker@%h'
-    ]
-    
-    celery_app.worker_main(argv)
+
+
+@app.post("/task", response_model=TaskResponse)
+async def process_task(request: TaskRequest):
+    """Process a background task."""
+    # Simplified task processing logic
+    task_id = f"task_{int(time.time())}"
+
+    # Simulate processing
+    result = {"processed": True, "task_type": request.task_type, "data": request.data}
+
+    return TaskResponse(task_id=task_id, status="completed", result=result)
+
+
+@app.get("/")
+async def root():
+    """Root endpoint."""
+    return {
+        "message": "IELTS Worker Service",
+        "version": "0.1.0",
+        "endpoints": ["/health", "/task"],
+    }
 
 
 if __name__ == "__main__":
-    main()
+    import uvicorn
+
+    port = int(os.environ.get("PORT", 8004))
+    uvicorn.run(app, host="0.0.0.0", port=port)

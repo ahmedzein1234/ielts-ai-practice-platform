@@ -1,0 +1,106 @@
+{
+  "services": {
+    "api": {
+      "build": {
+        "builder": "DOCKERFILE",
+        "dockerfile": "services/api/Dockerfile"
+      },
+      "environment": {
+        "DATABASE_URL": "postgresql://postgres:password@postgres:5432/ielts_db",
+        "REDIS_URL": "redis://redis:6379/0",
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}",
+        "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}",
+        "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}"
+      },
+      "ports": ["8000"]
+    },
+    "scoring": {
+      "build": {
+        "builder": "DOCKERFILE",
+        "dockerfile": "services/scoring/Dockerfile"
+      },
+      "environment": {
+        "DATABASE_URL": "postgresql://postgres:password@postgres:5432/ielts_db",
+        "REDIS_URL": "redis://redis:6379/0",
+        "PORT": "8001"
+      },
+      "ports": ["8001"]
+    },
+    "exam-generator": {
+      "build": {
+        "builder": "DOCKERFILE",
+        "dockerfile": "services/exam-generator/Dockerfile"
+      },
+      "environment": {
+        "DATABASE_URL": "postgresql://postgres:password@postgres:5432/ielts_db",
+        "REDIS_URL": "redis://redis:6379/0",
+        "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}"
+      },
+      "ports": ["8006"]
+    },
+    "ocr": {
+      "build": {
+        "builder": "DOCKERFILE",
+        "dockerfile": "services/ocr/Dockerfile"
+      },
+      "environment": {
+        "DATABASE_URL": "postgresql://postgres:password@postgres:5432/ielts_db",
+        "REDIS_URL": "redis://redis:6379/0"
+      },
+      "ports": ["8002"]
+    },
+    "speech": {
+      "build": {
+        "builder": "DOCKERFILE",
+        "dockerfile": "services/speech/Dockerfile"
+      },
+      "environment": {
+        "DATABASE_URL": "postgresql://postgres:password@postgres:5432/ielts_db",
+        "REDIS_URL": "redis://redis:6379/0"
+      },
+      "ports": ["8003"]
+    },
+    "ai-tutor": {
+      "build": {
+        "builder": "DOCKERFILE",
+        "dockerfile": "services/ai-tutor/Dockerfile"
+      },
+      "environment": {
+        "DATABASE_URL": "postgresql://postgres:password@postgres:5432/ielts_db",
+        "REDIS_URL": "redis://redis:6379/0",
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}",
+        "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}",
+        "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}",
+        "API_SERVICE_URL": "${API_SERVICE_URL}",
+        "SCORING_SERVICE_URL": "${SCORING_SERVICE_URL}",
+        "HOST": "0.0.0.0",
+        "PORT": "8001"
+      },
+      "ports": ["8001"]
+    },
+    "worker": {
+      "build": {
+        "builder": "DOCKERFILE",
+        "dockerfile": "workers/Dockerfile"
+      },
+      "environment": {
+        "DATABASE_URL": "postgresql://postgres:password@postgres:5432/ielts_db",
+        "REDIS_URL": "redis://redis:6379/0",
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}",
+        "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}",
+        "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}"
+      },
+      "ports": ["8004"]
+    }
+  },
+  "databases": {
+    "postgres": {
+      "type": "postgresql",
+      "version": "15"
+    },
+    "redis": {
+      "type": "redis",
+      "version": "7"
+    }
+  }
+}

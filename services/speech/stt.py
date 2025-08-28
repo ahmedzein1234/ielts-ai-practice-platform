@@ -10,7 +10,8 @@ import soundfile as sf
 from faster_whisper import WhisperModel
 
 from .config import settings
-from .models import STTRequest, STTResponse
+from .models import STTRequest, STTResponse, SpeechAnalysisRequest, SpeechAnalysisResponse
+from .enhanced_analysis import EnhancedSpeechAnalyzer
 
 
 class STTService:
@@ -19,6 +20,7 @@ class STTService:
     def __init__(self):
         """Initialize the STT service."""
         self.model: Optional[WhisperModel] = None
+        self.enhanced_analyzer = EnhancedSpeechAnalyzer()
         self._load_model()
     
     def _load_model(self) -> None:
@@ -137,16 +139,7 @@ class STTService:
                     "end": segment.end,
                     "text": segment.text,
                     "avg_logprob": segment.avg_logprob,
-                    "no_speech_prob": segment.no_speech_prob,
-                    "words": [
-                        {
-                            "start": word.start,
-                            "end": word.end,
-                            "word": word.word,
-                            "probability": word.probability
-                        }
-                        for word in segment.words
-                    ] if hasattr(segment, 'words') and segment.words else []
+                    "no_speech_prob": segment.no_speech_prob
                 })
             
             processing_time = time.time() - start_time
@@ -155,36 +148,167 @@ class STTService:
                 text=text,
                 confidence=confidence,
                 language=info.language,
-                segments=segment_data,
-                processing_time=processing_time
+                processing_time=processing_time,
+                segments=segment_data
             )
             
         except Exception as e:
-            processing_time = time.time() - start_time
             raise RuntimeError(f"Transcription failed: {e}")
     
-    def transcribe_base64(self, base64_audio: str, sample_rate: int = 16000, 
-                         language: Optional[str] = None) -> STTResponse:
-        """Transcribe base64 encoded audio."""
-        audio_data = self._base64_to_audio(base64_audio)
-        request = STTRequest(
-            audio_data=audio_data,
-            sample_rate=sample_rate,
-            language=language
-        )
-        return self.transcribe(request)
+    def transcribe_base64(self, base64_data: str, sample_rate: int = 16000, language: Optional[str] = None) -> STTResponse:
+        """Transcribe base64 encoded audio data."""
+        try:
+            audio_data = self._base64_to_audio(base64_data)
+            request = STTRequest(
+                audio_data=audio_data,
+                sample_rate=sample_rate,
+                language=language or "en"
+            )
+            return self.transcribe(request)
+        except Exception as e:
+            raise RuntimeError(f"Base64 transcription failed: {e}")
     
-    def get_model_info(self) -> Dict[str, Any]:
-        """Get model information."""
+    def analyze_speech(self, request: SpeechAnalysisRequest) -> SpeechAnalysisResponse:
+        """Perform comprehensive speech analysis including transcription and enhanced analysis."""
         if not self.model:
-            return {"status": "not_loaded"}
+            raise RuntimeError("Whisper model not loaded")
         
-        return {
-            "model_size": settings.whisper_model,
-            "device": settings.whisper_device,
-            "compute_type": settings.whisper_compute_type,
-            "status": "loaded"
-        }
+        start_time = time.time()
+        
+        try:
+            # First, transcribe the audio
+            stt_response = self.transcribe(STTRequest(
+                audio_data=request.audio_data,
+                sample_rate=request.sample_rate,
+                language=request.language
+            ))
+            
+            # Decode audio for analysis
+            audio = self._decode_audio(request.audio_data, request.sample_rate)
+            duration = len(audio) / request.sample_rate
+            
+            # Perform enhanced analysis
+            pronunciation = None
+            fluency = None
+            accent = None
+            
+            if request.include_pronunciation:
+                pronunciation = self.enhanced_analyzer.analyze_pronunciation(
+                    audio, stt_response.text, request.sample_rate
+                )
+            
+            if request.include_fluency:
+                fluency = self.enhanced_analyzer.analyze_fluency(
+                    audio, stt_response.text, duration
+                )
+            
+            if request.include_accent:
+                accent = self.enhanced_analyzer.analyze_accent(
+                    audio, stt_response.text
+                )
+            
+            # Calculate overall score
+            overall_score = 6.0
+            band_level = "Band 6"
+            detailed_feedback = []
+            
+            if pronunciation and fluency and accent:
+                overall_score, band_level = self.enhanced_analyzer.calculate_overall_score(
+                    pronunciation, fluency, accent
+                )
+                detailed_feedback = self.enhanced_analyzer.generate_detailed_feedback(
+                    pronunciation, fluency, accent
+                )
+            
+            # Create enhanced response
+            from .models import EnhancedSTTResponse
+            enhanced_response = EnhancedSTTResponse(
+                text=stt_response.text,
+                confidence=stt_response.confidence,
+                language=stt_response.language,
+                processing_time=stt_response.processing_time,
+                segments=stt_response.segments,
+                pronunciation=pronunciation,
+                fluency=fluency,
+                accent=accent,
+                overall_score=overall_score,
+                band_level=band_level,
+                detailed_feedback=detailed_feedback
+            )
+            
+            # Generate recommendations and practice suggestions
+            recommendations = self._generate_recommendations(
+                pronunciation, fluency, accent, request.target_band
+            )
+            practice_suggestions = self._generate_practice_suggestions(
+                pronunciation, fluency, accent
+            )
+            
+            return SpeechAnalysisResponse(
+                transcription=stt_response,
+                analysis=enhanced_response,
+                recommendations=recommendations,
+                practice_suggestions=practice_suggestions
+            )
+            
+        except Exception as e:
+            raise RuntimeError(f"Speech analysis failed: {e}")
+    
+    def _generate_recommendations(
+        self, 
+        pronunciation, 
+        fluency, 
+        accent, 
+        target_band: Optional[float]
+    ) -> List[str]:
+        """Generate improvement recommendations based on analysis."""
+        recommendations = []
+        
+        if target_band:
+            recommendations.append(f"Target IELTS Band: {target_band}")
+        
+        if pronunciation and pronunciation.overall_score < 7.0:
+            recommendations.append("Focus on pronunciation improvement")
+        
+        if fluency and fluency.words_per_minute < 120:
+            recommendations.append("Practice speaking at natural pace")
+        
+        if fluency and fluency.filler_frequency > 3:
+            recommendations.append("Work on reducing filler words")
+        
+        if accent and accent.comprehensibility < 0.8:
+            recommendations.append("Improve accent comprehensibility")
+        
+        if not recommendations:
+            recommendations.append("Continue practicing to maintain current level")
+        
+        return recommendations[:5]
+    
+    def _generate_practice_suggestions(
+        self, 
+        pronunciation, 
+        fluency, 
+        accent
+    ) -> List[str]:
+        """Generate specific practice suggestions."""
+        suggestions = []
+        
+        if pronunciation:
+            suggestions.append("Practice minimal pairs for better pronunciation")
+            suggestions.append("Record yourself and compare with native speakers")
+        
+        if fluency:
+            suggestions.append("Practice speaking without pauses")
+            suggestions.append("Use tongue twisters to improve fluency")
+        
+        if accent:
+            suggestions.append("Listen to native speakers and mimic their patterns")
+            suggestions.append("Practice stress and intonation patterns")
+        
+        suggestions.append("Join conversation groups for regular practice")
+        suggestions.append("Use the AI tutor for personalized feedback")
+        
+        return suggestions[:5]
 
 
 # Global STT service instance

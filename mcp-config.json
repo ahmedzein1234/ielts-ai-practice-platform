@@ -4,10 +4,21 @@
             "command": "npx",
             "args": [
                 "-y",
-                "@modelcontextprotocol/server-railway"
+                "@jason-tan-swe/railway-mcp"
             ],
             "env": {
                 "RAILWAY_TOKEN": "${RAILWAY_TOKEN}"
+            }
+        },
+        "cloudflare": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@cloudflare/wrangler-mcp"
+            ],
+            "env": {
+                "CLOUDFLARE_API_TOKEN": "${CLOUDFLARE_API_TOKEN}",
+                "CLOUDFLARE_ACCOUNT_ID": "${CLOUDFLARE_ACCOUNT_ID}"
             }
         },
         "supabase": {
@@ -22,38 +33,24 @@
                 "SUPABASE_SERVICE_ROLE_KEY": "${SUPABASE_SERVICE_ROLE_KEY}"
             }
         },
-        "vercel": {
+        "github": {
             "command": "npx",
             "args": [
                 "-y",
-                "@modelcontextprotocol/server-vercel"
+                "@modelcontextprotocol/server-github"
             ],
             "env": {
-                "VERCEL_TOKEN": "${VERCEL_TOKEN}",
-                "VERCEL_ORG_ID": "${VERCEL_ORG_ID}",
-                "VERCEL_PROJECT_ID": "${VERCEL_PROJECT_ID}"
+                "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
             }
         },
-        "ui-components": {
+        "openrouter": {
             "command": "npx",
             "args": [
                 "-y",
-                "@modelcontextprotocol/server-ui-components"
+                "@modelcontextprotocol/server-openrouter"
             ],
             "env": {
-                "COMPONENT_LIBRARY": "shadcn-ui",
-                "FRAMEWORK": "nextjs"
-            }
-        },
-        "context-assistant": {
-            "command": "npx",
-            "args": [
-                "-y",
-                "@modelcontextprotocol/server-context-assistant"
-            ],
-            "env": {
-                "CONTEXT_SOURCE": "github",
-                "REPO_URL": "${GITHUB_REPO_URL}"
+                "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}"
             }
         }
     }

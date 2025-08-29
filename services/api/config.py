@@ -87,8 +87,9 @@ class Settings(BaseSettings):
     # Upstash Context7
     upstash_context7_api_key: str = Field(default="your-upstash-context7-api-key", env="UPSTASH_CONTEXT7_API_KEY")
     
-    # Vercel
-    vercel_token: str = Field(default="your-vercel-token", env="VERCEL_TOKEN")
+    # Deployment
+    railway_token: str = Field(default="your-railway-token", env="RAILWAY_TOKEN")
+    cloudflare_api_token: str = Field(default="your-cloudflare-token", env="CLOUDFLARE_API_TOKEN")
     
     # Logging
     log_level: str = Field(default="INFO", env="LOG_LEVEL")

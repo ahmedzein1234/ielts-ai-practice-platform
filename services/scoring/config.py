@@ -101,8 +101,9 @@ class Settings(BaseSettings):
     # Deepgram (for compatibility with shared env)
     deepgram_api_key: Optional[str] = Field(default=None, env="DEEPGRAM_API_KEY")
     
-    # Vercel (for compatibility with shared env)
-    vercel_token: Optional[str] = Field(default=None, env="VERCEL_TOKEN")
+    # Deployment (for compatibility with shared env)
+    railway_token: Optional[str] = Field(default=None, env="RAILWAY_TOKEN")
+    cloudflare_api_token: Optional[str] = Field(default=None, env="CLOUDFLARE_API_TOKEN")
     
     # Service ports (for compatibility with shared env)
     api_port: Optional[int] = Field(default=None, env="API_PORT")

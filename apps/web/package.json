@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "deploy": "wrangler pages deploy out --project-name ielts-ai-platform",
+    "deploy:preview": "wrangler pages deploy out --project-name ielts-ai-platform --branch preview",
     "debug": "NODE_ENV=development DEBUG=* next dev",
     "debug:analyze": "ANALYZE=true npm run build",
     "debug:profile": "NODE_ENV=development NEXT_PROFILING=true next dev",

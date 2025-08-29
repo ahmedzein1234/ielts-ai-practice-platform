@@ -37,7 +37,7 @@ console.log('     NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here\n');
 
 console.log('3. 🔐 Authentication:');
 console.log('   • Go to Authentication > Settings');
-console.log('   • Configure your site URL: https://ielts-frontend-bkgqbaxdn-ahmedzein1234s-projects.vercel.app');
+console.log('   • Configure your site URL: https://ielts-ai-platform.pages.dev');
 console.log('   • Add redirect URLs for authentication\n');
 
 console.log('4. 📁 Storage:');

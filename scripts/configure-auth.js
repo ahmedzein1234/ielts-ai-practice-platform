@@ -11,14 +11,14 @@ console.log('📋 Authentication Setup Steps:\n');
 
 console.log('1. 🔗 Site URL Configuration:');
 console.log('   • Go to: https://supabase.com/dashboard/project/zzvskbvqtglzonftpikf/auth/settings');
-console.log('   • Set Site URL to: https://ielts-frontend-bkgqbaxdn-ahmedzein1234s-projects.vercel.app');
+console.log('   • Set Site URL to: https://ielts-ai-platform.pages.dev');
 console.log('   • Click "Save"\n');
 
 console.log('2. 🔄 Redirect URLs:');
 console.log('   • Add these redirect URLs:');
-console.log('     - https://ielts-frontend-bkgqbaxdn-ahmedzein1234s-projects.vercel.app/auth/callback');
-console.log('     - https://ielts-frontend-bkgqbaxdn-ahmedzein1234s-projects.vercel.app/login');
-console.log('     - https://ielts-frontend-bkgqbaxdn-ahmedzein1234s-projects.vercel.app/register');
+console.log('     - https://ielts-ai-platform.pages.dev/auth/callback');
+console.log('     - https://ielts-ai-platform.pages.dev/login');
+console.log('     - https://ielts-ai-platform.pages.dev/register');
 console.log('     - http://localhost:3000/auth/callback (for local development)');
 console.log('     - http://localhost:3000/login (for local development)');
 console.log('     - http://localhost:3000/register (for local development)\n');

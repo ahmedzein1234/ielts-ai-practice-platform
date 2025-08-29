@@ -7,15 +7,13 @@
     "ielts-deploy": "./mcp-deployment-integration.js"
   },
   "scripts": {
-    "deploy": "node mcp-deployment-integration.js",
-    "deploy:dry-run": "node mcp-deployment-integration.js --dry-run",
-    "deploy:backend": "node mcp-deployment-integration.js --skip-frontend --skip-supabase",
-    "deploy:frontend": "node mcp-deployment-integration.js --skip-backend --skip-supabase",
-    "setup": "npm install -g @railway/cli wrangler supabase",
+    "deploy": "node mcp-deployment-optimized.js",
+    "deploy:debug": "DEBUG=true node mcp-deployment-optimized.js",
+    "setup": "npm install -g @jason-tan-swe/railway-mcp @cloudflare/wrangler-mcp wrangler",
+    "setup:mcp": "node scripts/setup-mcp-servers.js",
     "health-check": "node scripts/health-check.js",
     "monitor": "node scripts/monitor.js",
-    "backup": "node scripts/backup.js",
-    "test": "node scripts/test-deployment.js"
+    "test": "node scripts/test-mcp-integration.js"
   },
   "keywords": [
     "ielts",

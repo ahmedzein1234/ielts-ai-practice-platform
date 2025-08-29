@@ -108,7 +108,7 @@ async function runDeployment() {
   console.log('4. Monitor performance and usage');
   
   console.log('\n🔗 Your application should be available at:');
-  console.log('https://ielts-frontend-bkgqbaxdn-ahmedzein1234s-projects.vercel.app');
+  console.log('https://ielts-ai-platform.pages.dev');
 }
 
 // Run deployment

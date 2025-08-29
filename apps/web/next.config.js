@@ -15,8 +15,9 @@ const nextConfig = {
     serverComponentsExternalPackages: ['@prisma/client'],
   },
 
-  // Docker support
-  output: 'standalone',
+  // Static export for Cloudflare Pages
+  output: 'export',
+  trailingSlash: true,
   async headers() {
     return [
       {
@@ -46,12 +47,12 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.vercel.com",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdnjs.cloudflare.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: https: blob:",
               "media-src 'self' blob:",
-              "connect-src 'self' ws: wss: https://api.ielts-ai.com",
+              "connect-src 'self' ws: wss: https://*.railway.app https://*.supabase.co",
               "frame-ancestors 'none'",
             ].join('; '),
           },
@@ -59,26 +60,7 @@ const nextConfig = {
       },
     ];
   },
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://localhost:8000/:path*',
-      },
-      {
-        source: '/speech/:path*',
-        destination: 'http://localhost:8002/:path*',
-      },
-      {
-        source: '/ocr/:path*',
-        destination: 'http://localhost:8003/:path*',
-      },
-      {
-        source: '/scoring/:path*',
-        destination: 'http://localhost:8005/:path*',
-      },
-    ];
-  },
+  // Rewrites removed for static export - use environment variables for API URLs
   webpack: (config, { dev, isServer }) => {
     // Enhanced source maps for debugging
     if (dev) {
